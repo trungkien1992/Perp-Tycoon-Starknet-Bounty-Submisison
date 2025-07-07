@@ -7,12 +7,20 @@ class ResultScreen extends ConsumerStatefulWidget {
   final String direction;
   final double pnl;
   final int xpGained;
+  final String? orderId;
+  final String? status;
+  final String? price;
+  final String? error;
 
   const ResultScreen({
     Key? key,
     required this.direction,
     required this.pnl,
     required this.xpGained,
+    this.orderId,
+    this.status,
+    this.price,
+    this.error,
   }) : super(key: key);
 
   @override
@@ -139,7 +147,7 @@ class _ResultScreenState extends ConsumerState<ResultScreen>
                                   ),
                                   SizedBox(width: 12),
                                   Text(
-                                    '${widget.direction} ETH-USDC',
+                                    '${widget.direction} ETH-USD',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -177,7 +185,180 @@ class _ResultScreenState extends ConsumerState<ResultScreen>
                           ),
                         ),
                         
-                        SizedBox(height: 40),
+                        SizedBox(height: 20),
+                        
+                        // Order details (if available)
+                        if (widget.orderId != null || widget.error != null)
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: widget.error != null 
+                                    ? Colors.orange 
+                                    : Color(0xFF00FFFF).withOpacity(0.5),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  widget.error != null ? 'EXECUTION NOTICE' : 'ORDER DETAILS',
+                                  style: TextStyle(
+                                    color: widget.error != null 
+                                        ? Colors.orange 
+                                        : Color(0xFF00FFFF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                if (widget.error != null) ...[
+                                  Text(
+                                    widget.error!,
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Order ID:',
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      Text(
+                                        widget.orderId ?? 'N/A',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (widget.status != null) ...[
+                                    SizedBox(height: 4),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Status:',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: widget.status == 'FILLED' 
+                                                ? Color(0xFF00FF41).withOpacity(0.2)
+                                                : Colors.orange.withOpacity(0.2),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            widget.status!,
+                                            style: TextStyle(
+                                              color: widget.status == 'FILLED' 
+                                                  ? Color(0xFF00FF41)
+                                                  : Colors.orange,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                  if (widget.price != null) ...[
+                                    SizedBox(height: 4),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Execution Price:',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        Text(
+                                          '\$${widget.price}',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ],
+                              ],
+                            ),
+                          ),
+                        
+                        SizedBox(height: 20),
+                        
+                        // Gasless Transaction Notice
+                        if (widget.orderId != null && widget.error == null)
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF00FFFF).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Color(0xFF00FFFF).withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.flash_on,
+                                  color: Color(0xFF00FFFF),
+                                  size: 24,
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'GASLESS TRANSACTION',
+                                        style: TextStyle(
+                                          color: Color(0xFF00FFFF),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Gas fees paid by StreetCred Paymaster - Zero cost to you!',
+                                        style: TextStyle(
+                                          color: Color(0xFF00FFFF),
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        
+                        if (widget.orderId != null && widget.error == null)
+                          SizedBox(height: 20),
                         
                         // XP Gained
                         Container(

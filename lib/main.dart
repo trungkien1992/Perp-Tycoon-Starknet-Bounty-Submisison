@@ -5,7 +5,6 @@ import 'screens/login_screen.dart';
 import 'screens/trading_screen.dart';
 import 'screens/result_screen.dart';
 import 'providers/auth_provider.dart';
-import 'providers/xp_provider.dart';
 
 void main() {
   runApp(
@@ -39,6 +38,10 @@ class StreetCredMinimalApp extends ConsumerWidget {
               direction: extra?['direction'] ?? 'LONG',
               pnl: extra?['pnl'] ?? 0.0,
               xpGained: extra?['xpGained'] ?? 10,
+              orderId: extra?['orderId'],
+              status: extra?['status'],
+              price: extra?['price'],
+              error: extra?['error'],
             );
           },
         ),
