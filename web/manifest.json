@@ -1,0 +1,23 @@
+{
+    "name": "StreetCred Clash - Minimal",
+    "short_name": "StreetCred",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#0A0A1A",
+    "theme_color": "#00FFFF",
+    "description": "Minimal StreetCred Clash trading experience",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
