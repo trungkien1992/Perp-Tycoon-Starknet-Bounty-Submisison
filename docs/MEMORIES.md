@@ -7,9 +7,9 @@
 
 **Key Decisions**:
 1. **Preserve Original Context**: User corrected to keep the original bounty-focused content while adding new RAG information
-2. **Multi-Platform Approach**: Implemented comprehensive RAG system supporting 4 platforms instead of single-platform focus
-3. **Architecture Choice**: Chose Python FastAPI + ChromaDB for RAG backend (user confirmed Python is best for RAG)
-4. **Enhanced Features**: Added AI-powered categorization, performance optimization, and health monitoring
+2. **RAG Purpose Clarification**: User clarified RAG is ONLY for Claude development efficiency, NOT a product feature
+3. **Architecture Separation**: RAG backend is development tool only, product focuses on trading + gamification
+4. **Core Product Focus**: StarkWare bounty submission for Gen-Z trading game, not developer tools
 
 **Technical Learnings**:
 - LangChain import structure changed - `GitHubLoader` no longer available in main module

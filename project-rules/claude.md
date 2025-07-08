@@ -54,6 +54,45 @@
 - **Verification**: Use blockchain explorers to verify all deployments
 - **Documentation**: Maintain clear deployment instructions
 
+## 📝 MANDATORY: Documentation Update Protocol
+
+### **CRITICAL RULE: ALWAYS UPDATE DOCS FOLDER**
+
+**When making ANY significant changes, you MUST update the following files:**
+
+1. **`docs/ARCHITECTURE.md`** - Update system architecture descriptions
+2. **`docs/PROJECT_STATUS.md`** - Update current project status and progress  
+3. **`docs/CONTEXT_PRIME.md`** - Update complete project context (if major changes)
+4. **Create new doc files** - For new major features (like AVNU integration)
+
+### **Documentation Update Checklist**
+
+✅ **Before finishing any task involving:**
+- New contracts or services
+- Architecture changes
+- API integrations
+- Security modifications
+- Deployment changes
+
+✅ **You MUST:**
+- [ ] Update relevant architecture documentation
+- [ ] Create feature-specific documentation if major
+- [ ] Update project status with new capabilities
+- [ ] Note any breaking changes or deprecations
+- [ ] Document new dependencies or requirements
+
+### **Example Documentation Tasks**
+- Added AVNU paymaster → Create `AVNU_PAYMASTER_INTEGRATION.md` + Update `ARCHITECTURE.md`
+- Modified trading flow → Update `ARCHITECTURE.md` data flow diagrams
+- New security features → Update `SECURITY.md` and `ARCHITECTURE.md`
+- Removed old code → Update all relevant docs to remove references
+
+### **Why This Matters**
+- **Future Sessions**: Next Claude sessions need accurate context
+- **Team Onboarding**: Developers need current architecture understanding
+- **Maintenance**: Clear docs prevent technical debt and confusion
+- **Deployment**: Accurate docs ensure correct production setup
+
 ## 🔧 Development Workflow
 
 ### **Starting a New Task**
@@ -65,7 +104,7 @@
 ### **Making Changes**
 1. Preserve existing functionality
 2. Maintain backward compatibility
-3. Update relevant documentation
+3. **MANDATORY: Update relevant documentation** (see Documentation Update Protocol below)
 4. Test thoroughly before committing
 
 ### **Session Management**

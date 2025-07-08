@@ -1,1 +1,0 @@
-{"version":1,"contracts":[{"id":"b7kacqs3a5lj2","package_name":"sc_paymaster","contract_name":"Paymaster","module_path":"sc_paymaster::paymaster::Paymaster","artifacts":{"sierra":"sc_paymaster_Paymaster.contract_class.json","casm":null}}]}

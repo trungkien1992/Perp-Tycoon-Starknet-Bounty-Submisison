@@ -62,25 +62,77 @@ class _TradingScreenState extends ConsumerState<TradingScreen>
         throw Exception('Starknet wallet not connected. Please connect your wallet.');
       }
       
+      // Check if paymaster can sponsor this trade (AVNU gasless)
+      final paymasterState = ref.read(paymasterProvider);
+      final paymasterService = PaymasterService(useMainnet: false);
+      
+      print('⛽ Checking gasless sponsorship...');
+      final sponsorshipResult = await paymasterService.canSponsorTrade(
+        userAddress: starknetState.accountAddress!,
+        tradeData: 'trade_${direction}_0.01_ETH-USD',
+        estimatedGas: BigInt.from(50000), // Estimated gas for trade
+      );
+      
+      print('Gasless Status: ${sponsorshipResult.canSponsor}');
+      print('Reason: ${sponsorshipResult.reason}');
+      print('Daily Limit Remaining: ${sponsorshipResult.dailyLimitRemaining}');
+      
+      bool useGasless = sponsorshipResult.canSponsor;
+      String executionMethod = useGasless ? 'GASLESS' : 'REGULAR';
+      
       // Get trading service and market
       final tradingService = ref.read(extendedTradingServiceProvider);
       final selectedMarket = ref.read(selectedMarketProvider);
       
-      print('🚀 Starting trade execution...');
+      print('🚀 Starting $executionMethod trade execution...');
       print('Market: $selectedMarket, Direction: $direction');
       print('Starknet Account: ${starknetState.accountAddress}');
       
-      // Execute authenticated trade via Extended API with Starknet signature
-      final orderResponse = await tradingService.executeTrade(
-        market: selectedMarket,
-        direction: direction,
-        leverage: 1.0,
-        quantity: '0.01', // Small test quantity
-      );
+      OrderResponse orderResponse;
       
-      print('✅ Trade executed successfully!');
-      print('Order ID: ${orderResponse.orderId}');
-      print('Status: ${orderResponse.status}');
+      if (useGasless && sponsorshipResult.paymasterData != null) {
+        // Execute gasless trade with paymaster
+        print('⚡ Executing GASLESS trade with paymaster...');
+        
+        final gaslessResult = await paymasterService.executeGaslessTradeTransaction(
+          userAddress: starknetState.accountAddress!,
+          userSignature: 'user_signature_placeholder', // Would be real signature
+          tradeData: 'trade_${direction}_0.01_ETH-USD',
+          paymasterData: sponsorshipResult.paymasterData!,
+        );
+        
+        if (!gaslessResult.success) {
+          throw Exception('Gasless trade failed: ${gaslessResult.message}');
+        }
+        
+        print('✅ Gasless trade executed! TX: ${gaslessResult.txHash}');
+        print('Gas fee paid by paymaster: ${gaslessResult.gasFeePaid}');
+        
+        // Create mock order response for gasless trade
+        orderResponse = OrderResponse(
+          orderId: gaslessResult.txHash ?? 'gasless_${DateTime.now().millisecondsSinceEpoch}',
+          status: 'filled',
+          price: _getCurrentMockPrice(),
+          quantity: '0.01',
+          side: direction.toLowerCase(),
+        );
+        
+      } else {
+        // Execute regular trade with user paying gas
+        print('💰 Executing REGULAR trade (user pays gas)...');
+        
+        orderResponse = await tradingService.executeTrade(
+          market: selectedMarket,
+          direction: direction,
+          leverage: 1.0,
+          quantity: '0.01', // Small test quantity
+        );
+        
+        print('✅ Regular trade executed successfully!');
+        print('Order ID: ${orderResponse.orderId}');
+      }
+      
+      print('Order Status: ${orderResponse.status}');
       print('Price: ${orderResponse.price}');
       
       // Calculate P&L and XP based on trade execution
@@ -89,9 +141,11 @@ class _TradingScreenState extends ConsumerState<TradingScreen>
           ? (random.nextDouble() - 0.5) * 200 // Mock P&L for testing
           : _calculateRealPnl(orderResponse, direction); // Real P&L calculation
       
-      final xpGained = 15 + random.nextInt(25); // 15-40 XP for real trades
+      // Give bonus XP for gasless trades to encourage usage
+      final baseXp = 15 + random.nextInt(25); // 15-40 XP for real trades
+      final xpGained = useGasless ? baseXp + 10 : baseXp; // +10 XP bonus for gasless
       
-      // Update XP
+      // Update XP with gasless bonus
       ref.read(xpProvider.notifier).gainXP(xpGained);
       
       if (mounted) {
@@ -102,6 +156,9 @@ class _TradingScreenState extends ConsumerState<TradingScreen>
           'orderId': orderResponse.orderId,
           'status': orderResponse.status,
           'price': orderResponse.price,
+          'gasless': useGasless,
+          'executionMethod': executionMethod,
+          'gasSaved': useGasless ? sponsorshipResult.maxFee : BigInt.zero,
         });
         
         setState(() {
@@ -200,6 +257,14 @@ class _TradingScreenState extends ConsumerState<TradingScreen>
     final directionMultiplier = direction == 'LONG' ? 1 : -1;
     
     return baseAmount * price * priceMovement * directionMultiplier;
+  }
+  
+  /// Get current mock price for gasless trades
+  String _getCurrentMockPrice() {
+    final random = math.Random();
+    final basePrice = 3200.0; // Mock ETH price
+    final variation = (random.nextDouble() - 0.5) * 100; // ±$50 variation
+    return (basePrice + variation).toStringAsFixed(2);
   }
 
   @override

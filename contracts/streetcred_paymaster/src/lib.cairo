@@ -1,1 +1,1 @@
-mod paymaster;
+mod avnu_paymaster;

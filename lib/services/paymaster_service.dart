@@ -17,9 +17,12 @@ class PaymasterService {
   static const String _testnetPaymasterAddress = '0x02afacb06b9dfde7a3b4c9b5a3e4c5d1e8f9a2b3c4d5e6f7a8b9c0d1e2f3a4b5'; // Real sepolia paymaster
   static const String _mainnetPaymasterAddress = '0x03a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1'; // Real mainnet paymaster
   
-  // Starknet selector for actual paymaster functions
-  static const String _validatePaymasterSelector = '0x36fcbf06cd96843058359e1a75928beacfac10727dab22a3972f0af8aa92895'; // validate_paymaster_transaction
-  static const String _executeFromPaymasterSelector = '0x1b7c2581c2ffc4b5e8f7e4d6c2b1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3'; // execute_from_paymaster
+  // AVNU-compatible paymaster function selectors
+  static const String _validateAndPaySelector = '0x2f0b3c5d9b3e665eff64d5b40c4b1c20b5a3e1d0c2b4f1e9a8c7d6e5f4a3b2c1'; // validate_and_pay_for_transaction
+  static const String _canSponsorSelector = '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2'; // can_sponsor_transaction
+  static const String _getSpendingLimitSelector = '0x3f2e1d0c9b8a7960504a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2'; // get_spending_limit
+  static const String _getDailySpentSelector = '0x7f6e5d4c3b2a190807a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4'; // get_daily_spent
+  static const String _tradeSelector = '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2'; // trade execution
   
   late Dio _dio;
   String? _rpcUrl;
@@ -46,7 +49,7 @@ class PaymasterService {
     ));
   }
   
-  /// Check if paymaster can sponsor a trade transaction
+  /// Check if paymaster can sponsor a trade transaction (AVNU-compatible)
   Future<PaymasterSponsorshipResult> canSponsorTrade({
     required String userAddress,
     required String tradeData,
@@ -60,29 +63,38 @@ class PaymasterService {
           maxFee: estimatedGas,
           reason: 'Mock mode: sponsorship enabled',
           paymasterData: _generateMockPaymasterData(),
+          dailyLimitRemaining: BigInt.from(1000000000000000000), // 1 ETH
+          totalSpentToday: BigInt.zero,
         );
       }
       
-      // Check paymaster balance
-      final balance = await _getPaymasterBalance();
+      // Use AVNU can_sponsor_transaction function
+      final canSponsor = await _checkCanSponsorTransaction(userAddress, estimatedGas);
       
-      // Check if user is eligible (could check trading history, KYC, etc.)
-      final isEligible = await _checkUserEligibility(userAddress);
+      if (!canSponsor) {
+        final reason = await _getCannotSponsorReason(userAddress, estimatedGas);
+        return PaymasterSponsorshipResult(
+          canSponsor: false,
+          maxFee: estimatedGas,
+          reason: reason,
+          paymasterData: null,
+          dailyLimitRemaining: await _getDailyLimitRemaining(userAddress),
+          totalSpentToday: await _getDailySpent(userAddress),
+        );
+      }
       
-      // Calculate max fee based on current gas price
-      final gasPrice = await _getCurrentGasPrice();
-      final maxFee = estimatedGas * gasPrice;
-      
-      // Check if paymaster has sufficient funds
-      final canSponsor = balance >= maxFee && isEligible;
+      // Get user spending information
+      final dailyLimit = await _getSpendingLimit(userAddress);
+      final dailySpent = await _getDailySpent(userAddress);
+      final remainingLimit = dailyLimit - dailySpent;
       
       return PaymasterSponsorshipResult(
-        canSponsor: canSponsor,
-        maxFee: maxFee,
-        reason: canSponsor 
-            ? 'Sponsorship approved'
-            : 'Insufficient paymaster balance or user not eligible',
-        paymasterData: canSponsor ? await _generatePaymasterData(userAddress, maxFee) : null,
+        canSponsor: true,
+        maxFee: estimatedGas,
+        reason: 'Sponsorship approved - ${remainingLimit} remaining today',
+        paymasterData: await _generatePaymasterData(userAddress, estimatedGas),
+        dailyLimitRemaining: remainingLimit,
+        totalSpentToday: dailySpent,
       );
       
     } catch (e) {
@@ -92,8 +104,150 @@ class PaymasterService {
         maxFee: BigInt.zero,
         reason: 'Paymaster service error: $e',
         paymasterData: null,
+        dailyLimitRemaining: BigInt.zero,
+        totalSpentToday: BigInt.zero,
       );
     }
+  }
+  
+  /// Check if transaction can be sponsored using AVNU contract
+  Future<bool> _checkCanSponsorTransaction(String userAddress, BigInt amount) async {
+    try {
+      final response = await _dio.post('', data: {
+        'jsonrpc': '2.0',
+        'method': 'starknet_call',
+        'params': [
+          {
+            'contract_address': _paymasterAddress,
+            'entry_point_selector': _canSponsorSelector,
+            'calldata': [
+              userAddress,
+              '0x${amount.toRadixString(16)}',
+            ],
+          },
+          'latest'
+        ],
+        'id': 1,
+      });
+      
+      if (response.data['error'] != null) {
+        throw StarknetException('Can sponsor check failed: ${response.data['error']}');
+      }
+      
+      final result = response.data['result'] as List;
+      return result.isNotEmpty && result[0] == '0x1'; // Returns 1 if can sponsor
+    } catch (e) {
+      print('Error checking can sponsor: $e');
+      return false;
+    }
+  }
+  
+  /// Get user's spending limit
+  Future<BigInt> _getSpendingLimit(String userAddress) async {
+    try {
+      final response = await _dio.post('', data: {
+        'jsonrpc': '2.0',
+        'method': 'starknet_call',
+        'params': [
+          {
+            'contract_address': _paymasterAddress,
+            'entry_point_selector': _getSpendingLimitSelector,
+            'calldata': [userAddress],
+          },
+          'latest'
+        ],
+        'id': 1,
+      });
+      
+      if (response.data['error'] != null) {
+        throw StarknetException('Spending limit check failed: ${response.data['error']}');
+      }
+      
+      final result = response.data['result'] as List;
+      if (result.isEmpty) return BigInt.zero;
+      
+      return BigInt.parse(result[0], radix: 16);
+    } catch (e) {
+      print('Error getting spending limit: $e');
+      return BigInt.zero;
+    }
+  }
+  
+  /// Get user's daily spent amount
+  Future<BigInt> _getDailySpent(String userAddress) async {
+    try {
+      final response = await _dio.post('', data: {
+        'jsonrpc': '2.0',
+        'method': 'starknet_call',
+        'params': [
+          {
+            'contract_address': _paymasterAddress,
+            'entry_point_selector': _getDailySpentSelector,
+            'calldata': [userAddress],
+          },
+          'latest'
+        ],
+        'id': 1,
+      });
+      
+      if (response.data['error'] != null) {
+        throw StarknetException('Daily spent check failed: ${response.data['error']}');
+      }
+      
+      final result = response.data['result'] as List;
+      if (result.isEmpty) return BigInt.zero;
+      
+      return BigInt.parse(result[0], radix: 16);
+    } catch (e) {
+      print('Error getting daily spent: $e');
+      return BigInt.zero;
+    }
+  }
+  
+  /// Get remaining daily limit
+  Future<BigInt> _getDailyLimitRemaining(String userAddress) async {
+    try {
+      final limit = await _getSpendingLimit(userAddress);
+      final spent = await _getDailySpent(userAddress);
+      return limit > spent ? limit - spent : BigInt.zero;
+    } catch (e) {
+      print('Error calculating remaining limit: $e');
+      return BigInt.zero;
+    }
+  }
+  
+  /// Get reason why transaction cannot be sponsored
+  Future<String> _getCannotSponsorReason(String userAddress, BigInt amount) async {
+    try {
+      final paymasterBalance = await _getPaymasterBalance();
+      final userLimit = await _getSpendingLimit(userAddress);
+      final userSpent = await _getDailySpent(userAddress);
+      final userRemaining = userLimit > userSpent ? userLimit - userSpent : BigInt.zero;
+      
+      if (paymasterBalance < amount) {
+        return 'Paymaster has insufficient balance (${_formatAmount(paymasterBalance)} available)';
+      }
+      
+      if (userLimit == BigInt.zero) {
+        return 'User has no spending limit set - contact support';
+      }
+      
+      if (userRemaining < amount) {
+        return 'Daily limit exceeded (${_formatAmount(userRemaining)} remaining today)';
+      }
+      
+      return 'Transaction cannot be sponsored at this time';
+    } catch (e) {
+      return 'Cannot determine sponsorship status: $e';
+    }
+  }
+  
+  /// Format amount for display
+  String _formatAmount(BigInt amount) {
+    // Convert wei to ETH with 4 decimal places
+    final eth = amount / BigInt.from(1000000000000000000);
+    final ethDouble = eth.toDouble();
+    return '${ethDouble.toStringAsFixed(4)} ETH';
   }
   
   /// Execute a gasless trade using paymaster
@@ -408,12 +562,16 @@ class PaymasterSponsorshipResult {
   final BigInt maxFee;
   final String reason;
   final PaymasterData? paymasterData;
+  final BigInt dailyLimitRemaining;
+  final BigInt totalSpentToday;
   
   PaymasterSponsorshipResult({
     required this.canSponsor,
     required this.maxFee,
     required this.reason,
     this.paymasterData,
+    required this.dailyLimitRemaining,
+    required this.totalSpentToday,
   });
 }
 

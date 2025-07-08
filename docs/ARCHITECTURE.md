@@ -2,27 +2,40 @@
 
 ## 🏗️ High-Level Architecture
 
-StreetCred Minimal is a comprehensive multi-platform system combining gamified mobile trading with intelligent SDK knowledge management. The architecture follows a microservices pattern with clear separation of concerns.
+StreetCred Minimal is a **gamified mobile trading app** for Gen-Z users targeting the StarkWare Bounty Program. The architecture focuses on trading, gamification, and blockchain innovation.
 
+### 🎮 Product Architecture (User-Facing)
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     StreetCred Minimal                         │
+│                  StreetCred Mobile Trading App                   │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
 │  │                 │    │                 │    │             │  │
-│  │  Flutter App    │◄──►│   RAG Backend   │◄──►│  External   │  │
-│  │   (Mobile UI)   │    │   (FastAPI)     │    │   APIs      │  │
-│  │                 │    │                 │    │             │  │
+│  │  Flutter App    │◄──►│ Smart Contracts │◄──►│  Extended   │  │
+│  │ (Swipe Trading) │    │ (XP + Paymaster)│    │  Exchange   │  │
+│  │                 │    │                 │    │ (Real API)  │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────┘  │
-│           │                       │                      │       │
-│           │                       │                      │       │
+│                                                                 │
+│  Core Features: Swipe Trading • Gasless Transactions • NFTs    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 🛠️ Development Architecture (Claude Code Tool)
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Claude Development Tools                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
 │  │                 │    │                 │    │             │  │
-│  │  Smart Contracts│    │   ChromaDB      │    │  Extended   │  │
-│  │    (Cairo)      │    │ (Vector Store)  │    │  Exchange   │  │
+│  │   Claude Code   │◄──►│   RAG Backend   │◄──►│  SDK Docs   │  │
+│  │  (This Session) │    │ (Context Tool)  │    │ (5 Platforms)│  │
 │  │                 │    │                 │    │             │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────┘  │
+│                                                                 │
+│  Purpose: Efficient context retrieval without burning tokens   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -31,13 +44,13 @@ StreetCred Minimal is a comprehensive multi-platform system combining gamified m
 
 ### 1. Flutter Mobile Application (`/lib/`)
 
-**Primary responsibility**: User interface and mobile experience
+**Primary responsibility**: User interface and mobile trading experience
 
 **Key modules**:
 - **Trading Interface**: Swipe-based trading with gamification
-- **SDK Knowledge Base**: Search across multiple platforms
 - **Blockchain Integration**: Starknet wallet and transaction management
 - **Paymaster Integration**: Gasless transaction sponsorship
+- **Social Features**: Leaderboards, achievements, and friend systems
 
 **Architecture pattern**: Provider-based state management with Riverpod
 
@@ -48,59 +61,65 @@ UI Screen → Provider → Service → External API
        State Update
 ```
 
-### 2. Python RAG Backend (`/rag_backend/`)
+### 2. Knowledge Base RAG System (`/knowledge_base/`) - **DEVELOPMENT TOOL ONLY**
 
-**Primary responsibility**: Intelligent document search and knowledge management
+**Primary responsibility**: Claude Code context retrieval without burning tokens (NOT a product feature)
 
 **Key modules**:
-- **FastAPI Server**: RESTful API with async support
-- **Multi-platform Indexer**: Documentation ingestion from 4 platforms
-- **Categorization System**: AI-powered content organization
-- **Optimization Manager**: Performance tuning and health monitoring
+- **FastAPI Server**: Local development server for Claude context queries
+- **Multi-platform Indexer**: SDK documentation for Claude reference  
+- **Categorization System**: Organize context for efficient retrieval
+- **Optimization Manager**: Keep context database efficient
+- **Management Scripts**: Complete system management and automation
 
-**Architecture pattern**: Microservice with vector database
+**Architecture pattern**: Self-contained knowledge management system
 
 ```python
-# Request flow
-API Request → FastAPI → ChromaDB → Sentence Transformers → Response
+# Claude Code context flow
+Claude Question → Knowledge Base RAG → ChromaDB → SDK Context → Better Code
 ```
+
+**⚠️ IMPORTANT**: This is NOT shipped to users - it's purely for Claude development efficiency
 
 ### 3. Smart Contracts (`/contracts/`)
 
 **Primary responsibility**: Blockchain-based features and gasless transactions
 
 **Key contracts**:
-- **XP System**: On-chain experience tracking
-- **Paymaster**: Gasless transaction sponsorship
-- **Achievement NFTs**: Blockchain-verified accomplishments
+- **XP System** (`streetcred_xp/`): On-chain experience tracking
+- **AVNU Paymaster** (`streetcred_paymaster/avnu_paymaster.cairo`): AVNU-compatible gasless transaction sponsorship
+- **Achievement NFTs** (`street_art_nft/`): Blockchain-verified accomplishments
 
-**Architecture pattern**: Cairo smart contracts on Starknet
+**Architecture pattern**: Cairo smart contracts on Starknet with AVNU ecosystem compatibility
 
 ## 🔄 Data Flow Architecture
 
-### Trading Flow
+### Trading Flow (with AVNU Gasless)
 ```
 1. User swipes on mobile → 2. Flutter provider updates
                                      ↓
-8. UI shows result ← 7. XP update ← 6. Trade execution
+9. UI shows result ← 8. XP bonus (+10 for gasless) ← 7. Trade execution
                                      ↓
-3. Paymaster sponsors gas → 4. Starknet signature → 5. Extended Exchange API
+3. AVNU can_sponsor_transaction? → 4. validate_and_pay_for_transaction → 5. Extended Exchange API
+        ↓                                    ↓
+6. Daily limit check                 Atomic gas payment by paymaster
 ```
 
-### Knowledge Search Flow
+### Knowledge Search Flow (Development Only)
 ```
-1. User searches → 2. RAG backend → 3. ChromaDB query → 4. Semantic search
-                                                              ↓
-8. Results display ← 7. Categorization ← 6. Ranking ← 5. Vector similarity
+1. Claude searches → 2. Knowledge Base RAG → 3. ChromaDB query → 4. Semantic search
+                                                                      ↓
+8. Context provided ← 7. Categorization ← 6. Ranking ← 5. Vector similarity
 ```
 
 ## 🧩 Component Interactions
 
-### Flutter App ↔ RAG Backend
-- **Protocol**: HTTP REST API
-- **Endpoints**: `/search`, `/categories`, `/metrics`, `/optimize`
-- **Data format**: JSON with structured responses
-- **Caching**: Local SQLite cache for offline support
+### Claude Code ↔ Knowledge Base RAG (Development Only)
+- **Protocol**: HTTP REST API (local development)
+- **Endpoints**: `/search`, `/categories`, `/health` for context retrieval
+- **Purpose**: Efficient SDK documentation lookup for Claude without burning tokens
+- **Management**: `./manage_knowledge_base.sh` for complete system control
+- **Scope**: Development environment only, not deployed to production
 
 ### Flutter App ↔ Smart Contracts
 - **Protocol**: Starknet RPC calls
@@ -192,8 +211,8 @@ API Request → FastAPI → ChromaDB → Sentence Transformers → Response
 
 ### Local Development
 ```bash
-# RAG Backend
-cd rag_backend && python main.py
+# Knowledge Base RAG System
+cd knowledge_base && ./manage_knowledge_base.sh start
 
 # Flutter App  
 flutter run
@@ -203,9 +222,9 @@ cd contracts && scarb build
 ```
 
 ### Production Deployment
-- **RAG Backend**: Docker containerization
+- **Knowledge Base RAG**: NOT deployed (development tool only)
 - **Flutter App**: Mobile app stores
-- **Smart Contracts**: Starknet mainnet deployment
+- **Smart Contracts**: Starknet mainnet deployment  
 - **Monitoring**: Health checks and metrics
 
 ## 🔮 Future Architecture Considerations

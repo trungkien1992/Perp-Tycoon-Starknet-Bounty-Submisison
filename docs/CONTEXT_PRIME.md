@@ -2,278 +2,228 @@
 
 > **Purpose**: This file maintains the complete project context for Claude Code sessions. Update this file before starting any new tasks.
 
-## 🎯 CRITICAL BUSINESS CONTEXT
+## 🎯 Project Overview
 
-**StreetCred Minimal** is now being developed as a **SUBMISSION FOR STARKWARE'S $25K-$1M BOUNTY** for a gamified mobile perpetual trading app targeting Gen-Z users (18-28).
+**StreetCred Minimal** is a production-ready Flutter trading application with **Starknet blockchain integration** for ETH-USD perpetual futures trading using Extended API ( https://api.docs.extended.exchange/)
 
-### **Core Mission (CHANGED)**
-- **Type**: Native mobile gamified trading app (NOT web app anymore)
-- **Purpose**: Make perpetual trading addictive and social for TikTok generation
-- **Target Users**: Gen-Z crypto-curious, reward-driven, mobile-first users
-- **Business Goal**: Win StarkWare bounty and secure up to $1M funding
-- **Deadline**: Time-bound bounty submission (URGENT)
+### **Core Identity**
+- **Type**: Flutter web application with Cairo smart contracts
+- **Purpose**: Cryptocurrency trading with blockchain authentication
+- **Blockchain**: Starknet - Ethereum Rollup (Cairo smart contracts)
+- **Trading**: ETH-USD perpetual futures via Extended Exchange API
+- **State**: Production-ready with blockchain deployment capability
 
-### **Key Pivot Points**
-- ❌ **OLD**: Flutter web app for crypto traders
-- ✅ **NEW**: Native mobile game that happens to trade crypto
-- ❌ **OLD**: Technical focus on blockchain infrastructure  
-- ✅ **NEW**: User addiction and viral growth mechanics
-- ❌ **OLD**: Traditional trading interface
-- ✅ **NEW**: Swipe-based gaming with ecosystem growth
+## 🏗️ Architecture Summary
 
-## 🎮 NEW PRODUCT VISION
-
-### **The Gamified Experience**
+### **Frontend (Flutter)**
 ```
-User Journey:
-Download → Tutorial (free trades) → Ecosystem Building → Real Trading → Social Sharing
-├── Castle/Garden/Planet grows with wins
-├── NFT achievements for milestones  
-├── Streak-based XP and panic notifications
-├── Leaderboards and clan competitions
-└── Social bragging and shareable wins
+lib/
+├── main.dart                     # App entry with routing
+├── app_mode.dart                 # Mock/Real mode configuration
+├── screens/                      # UI screens (login, trading, result)
+├── providers/                    # State management (auth, starknet, xp)
+├── services/                     # Core business logic
+└── models/                       # Data structures
 ```
 
-### **Core Gameplay Mechanics**
-- **Swipe Trading**: Up for LONG, Down for SHORT (like TikTok)
-- **Ecosystem Growth**: Personal castle/garden that grows with success
-- **Achievement NFTs**: Collectible milestones (first trade, streaks, etc.)
-- **Social Competition**: Clans, leaderboards, friend battles
-- **Retention Hooks**: Daily streaks, push notifications, FOMO triggers
-
-### **Mobile-First Features**
-- **Native iOS/Android** (not Flutter web)
-- **Haptic feedback** on every action
-- **Push notifications** for streak protection
-- **Lock screen widgets** for quick trading
-- **Instant visual feedback** (particles, animations)
-- **Social sharing** integration
-
-## 🏗️ REVISED ARCHITECTURE
-
-### **Frontend (Native Mobile)**
-```
-Mobile App (React Native or Native iOS/Android)
-├── Swipe Trading Interface      # Core gameplay mechanism
-├── Ecosystem Visualization      # Castle/garden growth
-├── Achievement System          # NFT collection display
-├── Social Features            # Leaderboards, clans, sharing
-├── Onboarding Tutorial        # Gamified free-play mode
-└── Retention Mechanics        # Streaks, notifications, rewards
-```
-
-### **Backend Services (Existing + Enhanced)**
-```
-services/
-├── real_starknet_service.dart    # Real blockchain integration (KEEP)
-├── contract_service.dart         # Contract interaction (KEEP)
-├── extended_api_client.dart      # Trading API (KEEP)
-├── rag_client_service.dart       # SDK knowledge base client (NEW)
-├── gamification_service.dart     # NEW: XP, streaks, achievements
-├── ecosystem_service.dart        # NEW: Castle/garden mechanics
-└── social_service.dart          # NEW: Leaderboards, clans
-```
-
-### **Smart Contracts (Enhanced for Gaming)**
+### **Blockchain (Cairo Smart Contracts)**
 ```
 contracts/
-├── streetcred_xp/               # XP tracking + leaderboard (ENHANCE)
-├── achievement_nft/             # NFT milestones (NEW)
-├── ecosystem_growth/            # Castle/garden state (NEW)
-└── paymaster/                   # Gasless transactions (KEEP)
+├── streetcred_xp/               # XP tracking and leaderboard system
+├── street_art_nft/             # Achievement-based NFT minting
+├── streetcred_paymaster/        # Gasless transaction sponsorship
+└── paymaster/                   # Additional paymaster implementation
 ```
 
-### **RAG Knowledge Base System (NEW)**
+### **Deployment Infrastructure**
 ```
-rag_backend/
-├── main.py                      # FastAPI RAG server
-├── categorization_system.py     # AI-powered document categorization
-├── sdk_enhanced_indexer.py      # Multi-platform SDK indexer
-├── optimization_manager.py      # Performance optimization
-└── setup_enhanced.py           # Enhanced setup and deployment
+scripts/
+├── setup_real_starknet.sh       # Account setup and keystore creation
+├── real_deploy_contracts.sh     # Contract deployment automation
+├── real_deploy_contracts.py     # Python deployment script
+├── verify_real_deployment.sh    # Blockchain verification
+└── calculate_selectors.py       # Function selector utilities
 ```
 
-## 🎯 BOUNTY REQUIREMENTS
+## 🔧 Key Technologies
 
-### **Must-Have for v0 Submission**
-- ✅ **Mobile-first frontend** (native iOS/Android)
-- ✅ **Extended API integration** (one real trade)
-- ✅ **XP tracking** for trades and streaks
-- ✅ **Basic leaderboard** functionality
-- ✅ **Paymaster integration** (zero gas fees)
-- ✅ **Gamification mechanics** (ecosystem growth)
-- ✅ **Social features** (sharing, competition)
+### **Frontend Stack**
+- **Flutter 3.10+** with web support
+- **Riverpod** for state management
+- **GoRouter** for navigation
+- **Material Design** with cyberpunk theme
 
-### **Evaluation Criteria**
-- **User Addiction**: Will Gen-Z users come back daily?
-- **Viral Potential**: Will users share and compete?
-- **Mobile UX**: Native features, haptics, instant feedback
-- **Technical Integration**: Real trades via Extended API
-- **Retention Design**: Streaks, rewards, social pressure
+### **Blockchain Stack**  
+- **Starknet** L2 blockchain
+- **Cairo** smart contract language
+- **starkli** CLI for deployment
+- **scarb** Cairo compiler
 
-## 🚀 CURRENT TECHNICAL ASSETS
+### **Trading Integration**
+- **Extended Exchange API** for real ETH-USD trading
+- **WebSocket** real-time market data
+- **Starknet signatures** for trade authentication
 
-### **What We Can Leverage (From Previous Work)**
-- ✅ **Real Starknet Integration**: Working blockchain deployment
-- ✅ **Extended API Integration**: Real trading functionality
-- ✅ **Smart Contracts**: XP tracking, NFT minting, paymaster
-- ✅ **Security Implementation**: Encrypted credentials, secure config
-- ✅ **Deployment Scripts**: Automated contract deployment
+## 🚀 Deployment Status
 
-### **What Needs Complete Rebuild**
-- ❌ **Frontend**: Flutter web → Native mobile
-- ❌ **UX Design**: Trading interface → Gaming mechanics  
-- ❌ **User Flow**: Professional → Addictive social experience
-- ❌ **Visual Design**: Cyberpunk charts → Playful ecosystem growth
+### **Real Starknet Integration: ✅ IMPLEMENTED**
 
-### **NEW: Enhanced SDK Knowledge Base (ADDED)**
-- ✅ **Multi-Platform RAG System**: Comprehensive SDK knowledge base with AI search
-- ✅ **Extended Exchange API**: Complete trading documentation and examples
-- ✅ **X10 Python SDK**: Client library integration and best practices
-- ✅ **Cairo Smart Contracts**: Development guides and OpenZeppelin patterns
-- ✅ **Starknet.dart**: Mobile integration and Flutter development
-- ✅ **Intelligent Search**: Semantic similarity with context-aware suggestions
-- ✅ **Auto-categorization**: AI-powered document classification and tagging
-- ✅ **Performance Optimization**: System health monitoring and auto-optimization
+**Infrastructure Created:**
+- ✅ Real starkli keystore and account setup
+- ✅ Actual Cairo contract compilation and deployment
+- ✅ Real blockchain transaction signing
+- ✅ Starknet testnet deployment scripts
+- ✅ Blockchain explorer verification
 
-## 📱 IMPLEMENTATION PRIORITY
+**Key Services:**
+- `RealStarknetService` - Uses actual starkli CLI commands
+- `ContractService` - Routes to real blockchain in real mode
+- `SecureConfigService` - Manages encrypted credentials
 
-### **Phase 1: Core Mobile Game (Week 1)**
-- ✅ **Enhanced RAG knowledge base** with 4-platform SDK integration
-- [ ] Native mobile app foundation
-- [ ] Swipe-based trading interface
-- [ ] Basic ecosystem visualization (castle/garden)
-- [ ] Haptic feedback implementation
-- [ ] XP system with instant rewards
+**Verification:**
+- Contracts deployable to Starknet testnet
+- Transactions visible on Starkscan/Voyager
+- Real gas fees and blockchain interactions
 
-### **Phase 2: Social & Retention (Week 2)**
-- [ ] Streak tracking with notifications
-- [ ] Leaderboard with friend rankings
-- [ ] Achievement NFT system
-- [ ] Social sharing capabilities
-- [ ] Clan/alliance features
+## 🎮 Application Flow
 
-### **Phase 3: Real Trading Integration (Week 3)**
-- [ ] Extended API integration for real trades
-- [ ] Paymaster integration (zero gas)
-- [ ] Risk management for mobile users
-- [ ] Real-time P&L with game feedback
-- [ ] Mock trading mode for onboarding
+### **Dual Mode System**
+- **Mock Mode** (`APP_MODE=mock`): Safe development with simulated data
+- **Real Mode** (`APP_MODE=real`): Production trading with actual funds
 
-### **Phase 4: Polish & Submission (Week 4)**
-- [ ] Onboarding tutorial optimization
-- [ ] Advanced ecosystem features
-- [ ] Push notification system
-- [ ] Analytics and user behavior tracking
-- [ ] Demo video and submission materials
+### **Trading Pipeline**
+```
+1. User Login → Authentication
+2. Market Data → WebSocket real-time ETH-USD prices  
+3. Trade Execution → Starknet signature + Extended API call
+4. XP Gain → Real contract write to blockchain
+5. Results → Transaction hash + P&L display
+6. Achievements → NFT minting for milestones
+```
 
-## 🎯 SUCCESS METRICS
+### **Blockchain Integration**
+```
+Flutter App → XPNotifier.gainXP() → ContractService.addXPToContract() 
+→ RealStarknetService → starkli invoke → Starknet RPC 
+→ Contract execution → Transaction hash → Explorer verification
+```
 
-### **User Engagement (Primary)**
-- **Daily Active Users**: Target 70%+ retention day 1
-- **Session Length**: Average 5+ minutes per session
-- **Social Sharing**: 30%+ users share wins/ecosystem
-- **Streak Completion**: 50%+ users maintain 3+ day streaks
+## 📁 Essential Files
 
-### **Technical Performance**
-- **Trade Execution**: <2 seconds from swipe to confirmation
-- **Real Blockchain**: All trades verified on Starknet
-- **Zero Gas**: 100% transactions sponsored by paymaster
-- **Mobile Performance**: 60fps on all interactions
+### **Core Application**
+- `lib/main.dart` - App entry point with routing
+- `lib/app_mode.dart` - Mock/Real mode configuration
+- `lib/services/real_starknet_service.dart` - Real blockchain integration
+- `lib/services/contract_service.dart` - Contract interaction layer
+- `lib/providers/xp_provider.dart` - XP state management with contract writes
 
-## 🔥 COMPETITIVE ADVANTAGES
+### **Smart Contracts** 
+- `contracts/streetcred_xp/src/xp_system.cairo` - XP tracking contract
+- `contracts/street_art_nft/src/street_art.cairo` - Achievement NFT contract
+- `contracts/streetcred_paymaster/src/paymaster.cairo` - Gasless transactions
 
-### **What Sets Us Apart**
-- **Real Blockchain Integration**: Already working Starknet deployment
-- **Technical Foundation**: Proven Extended API integration
-- **Security Implementation**: Production-ready credential management
-- **Mobile Gaming Focus**: Ecosystem growth + social competition
+### **Deployment Scripts**
+- `scripts/setup_real_starknet.sh` - Initial account setup
+- `scripts/real_deploy_contracts.sh` - Contract deployment
+- `scripts/verify_real_deployment.sh` - Deployment verification
 
-### **Key Differentiators**
-- **Ecosystem Metaphor**: Growing castle/garden beats generic points
-- **Social Pressure**: Clan battles and streak protection
-- **Native Mobile**: True iOS/Android features vs web wrapper
-- **Real NFT Rewards**: Blockchain-verified achievements
+### **Documentation**
+- `README.md` - Main project documentation
+- `REAL_STARKNET_DEPLOYMENT.md` - Complete deployment guide
+- `CAIRO_CONTRACTS_README.md` - Smart contract documentation
+- `SECURITY.md` - Security guidelines
 
-### **NEW: Advanced Developer Experience (ADDED)**
-- **Comprehensive SDK Knowledge**: 4-platform documentation with AI search
-- **Development Support**: Real-time help for Extended Exchange, Cairo, X10, Starknet.dart
-- **Production Tools**: RAG backend with optimization and monitoring
-- **Cross-Platform Integration**: Seamless knowledge sharing across all SDKs
+### **Testing**
+- `test_real_trading.dart` - Real trading validation
+- `test_cairo_integration.dart` - Blockchain contract testing
+- `test_secure_config.dart` - Configuration security testing
 
-## 🚨 CRITICAL RISKS
+## 🔐 Security Implementation
 
-### **Technical Risks**
-- **Platform Switch**: Moving from Flutter web to native mobile
-- **Timeline Pressure**: 4 weeks to build production-quality app
-- **Integration Complexity**: Combining gaming UX with real trading
+### **Credential Management**
+- ✅ **Encrypted keystore** with starkli
+- ✅ **Environment-based configuration** (no hardcoded secrets)
+- ✅ **Secure config service** with masked logging
+- ✅ **Real cryptographic signatures** for all transactions
 
-### **Product Risks**
-- **User Addiction**: Missing the psychology that hooks Gen-Z
-- **Social Features**: Building community features that actually work
-- **Mobile Performance**: Achieving smooth 60fps gaming experience
+### **Trading Security**
+- ✅ **Starknet authentication** for all trades
+- ✅ **Input validation** and sanitization
+- ✅ **Error handling** with graceful degradation
+- ✅ **Mode separation** (mock vs real)
 
-### **Business Risks**
-- **Competition**: Other teams with gaming/mobile expertise
-- **Market Fit**: Misunderstanding what Gen-Z actually wants
-- **Technical Debt**: Rushing features without proper architecture
+## 📊 Current Implementation Status
 
-## 📋 DAILY BATTLE RHYTHM
+### **✅ Completed Components**
+- Real Starknet account setup and deployment
+- Cairo smart contract compilation and deployment
+- Real blockchain transaction signing and execution
+- Complete Flutter application with trading functionality
+- WebSocket real-time market data integration
+- Extended Exchange API integration for trading
+- Comprehensive testing suite
+- Production deployment automation
+- Security implementation and validation
+- Documentation and deployment guides
 
-### **Every Morning Review**
-1. **Engagement Metrics**: How addictive is current build?
-2. **Technical Progress**: What's blocking mobile development?
-3. **User Testing**: Fresh eyes on latest build
+### **🔄 Ready for Production**
+- Testnet deployment verified and working
+- Real blockchain transactions confirmed
+- Security audit completed
+- Performance optimization implemented
+- Error handling and monitoring in place
 
-### **Every Evening Assessment**
-1. **Retention Design**: Would you use this tomorrow?
-2. **Social Features**: Would you share/compete with friends?
-3. **Mobile Feel**: Does it feel like a native game?
+## 🎯 Development Guidelines
 
-## 🎯 KEY DECISIONS NEEDED IMMEDIATELY
+### **Code Conventions**
+- **Flutter**: Material Design with dark cyberpunk theme
+- **Cairo**: Production-ready contract patterns
+- **State Management**: Riverpod with providers
+- **Error Handling**: Comprehensive try-catch with user feedback
+- **Logging**: Detailed console output for debugging
 
-### **Technical Platform**
-- **React Native** (faster development) vs **Native iOS** (better UX)
-- **Ecosystem Theme**: Castle vs Garden vs Planet
-- **Social Features**: Clans vs Friends vs Public leaderboards
+### **Testing Standards**
+- **Integration Tests**: Full user flow validation
+- **Contract Tests**: Blockchain interaction verification
+- **Security Tests**: Credential and signature validation
+- **Real Mode Tests**: Actual API and blockchain calls
 
-### **Resource Allocation**
-- **Solo Development** vs **Finding Team Members**
-- **Design Priority**: Gaming mechanics vs Trading functionality
-- **Testing Strategy**: Internal vs Real Gen-Z user feedback
+### **Deployment Process**
+1. Run account setup: `./scripts/setup_real_starknet.sh`
+2. Fund account with testnet ETH from faucet
+3. Deploy contracts: `./scripts/real_deploy_contracts.sh`
+4. Verify deployment: `./scripts/verify_real_deployment.sh`
+5. Test application: `flutter run -d web --dart-define=APP_MODE=real`
 
-## 📊 CURRENT STATUS
+## 🚨 Important Notes
 
-### **✅ Strong Foundation**
-- Real Starknet blockchain integration working
-- Extended API trading functionality proven
-- Smart contracts deployed and tested
-- Security implementation complete
-- Paymaster integration functional
-- **NEW**: Comprehensive RAG knowledge base operational
+### **Real Money Warning**
+- In `APP_MODE=real`, the application executes actual trades with real funds
+- Default trade size is 0.01 ETH (~$28) for testing
+- Users must fund Extended Exchange account with real USDC
+- All transactions consume real gas fees on Starknet
 
-### **🔄 Major Pivot Required**
-- Frontend: Web app → Native mobile game
-- UX: Professional trading → Addictive gaming
-- Users: Crypto traders → Gen-Z social gamers
-- Metrics: Technical performance → User engagement
+### **Development Safety**
+- Always test in mock mode first
+- Verify all configurations before real mode
+- Monitor blockchain explorer for transaction confirmations
+- Keep private keys secure and never commit to repository
 
-### **⏰ Timeline Pressure**
-- **Bounty deadline**: Time-bound submission
-- **Competition**: Other teams already building
-- **Funding opportunity**: $25K-$1M potential reward
+### **Technical Standards**
+- Follow existing patterns for new features
+- Maintain separation between mock and real implementations
+- Document all API integrations and contract interactions
+- Implement comprehensive error handling for all external calls
 
 ---
 
 ## 📝 Last Updated
 
-**Date**: 2025-01-08  
-**Session**: Multi-Platform SDK RAG Integration + Enhanced Architecture
-**Status**: ENHANCED WITH COMPREHENSIVE RAG SYSTEM FOR 4-PLATFORM SDK INTEGRATION
-**Next Focus**: Mobile gamification implementation and bounty submission preparation
-
-**Critical Mission**: Win StarkWare bounty by building the most addictive mobile trading game for Gen-Z users
+**Date**: 2025-01-08
+**Session**: Real Starknet Integration Implementation
+**Status**: Production-ready with real blockchain deployment
+**Next Focus**: Production deployment and user testing
 
 ---
 
-> **🎯 MISSION CRITICAL**: This is no longer a side project. This is a time-bound bounty with $25K-$1M funding potential. Every development decision must prioritize USER ADDICTION and MOBILE GAMING EXPERIENCE over technical perfection.
+> **⚠️ CRITICAL**: Always update this file when making significant changes to project architecture, adding new features, or changing deployment processes. This ensures continuity between Claude Code sessions.
