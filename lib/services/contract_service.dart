@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'starknet_service.dart';
+import 'real_starknet_service.dart';
 import '../app_mode.dart';
 
 /// Real Starknet Contract Service with deployed contract addresses
@@ -48,13 +49,28 @@ class ContractService {
   };
   
   final StarknetService _starknetService;
+  final RealStarknetService? _realStarknetService;
   final bool _useMainnet;
   late String _rpcUrl;
   
   ContractService(this._starknetService, {bool useMainnet = false}) 
-      : _useMainnet = useMainnet {
+      : _useMainnet = useMainnet,
+        _realStarknetService = isRealMode() ? RealStarknetService(useMainnet: useMainnet) : null {
     _rpcUrl = useMainnet ? _mainnetRpcUrl : _testnetRpcUrl;
     _loadDeployedAddresses();
+    _initializeRealService();
+  }
+  
+  /// Initialize real Starknet service if in real mode
+  Future<void> _initializeRealService() async {
+    if (_realStarknetService != null && isRealMode()) {
+      try {
+        await _realStarknetService!.initializeWithStarkli();
+        print('✅ Real Starknet service initialized');
+      } catch (e) {
+        print('❌ Failed to initialize real Starknet service: $e');
+      }
+    }
   }
   
   /// Load real deployed contract addresses from environment configuration
@@ -111,6 +127,25 @@ class ContractService {
       return 'mock_tx_${DateTime.now().millisecondsSinceEpoch}';
     }
     
+    // Use real Starknet service for actual contract interaction
+    if (_realStarknetService != null && _realStarknetService!.isInitialized) {
+      try {
+        final txHash = await _realStarknetService!.addXPToContract(
+          playerAddress: playerAddress,
+          xpAmount: xpAmount,
+        );
+        
+        print('✅ XP added to contract via real service: $xpAmount XP for $playerAddress');
+        print('📝 Transaction hash: $txHash');
+        
+        return txHash;
+      } catch (e) {
+        print('❌ Failed to add XP to contract via real service: $e');
+        throw ContractException('Failed to add XP to contract: $e');
+      }
+    }
+    
+    // Fallback to legacy RPC implementation
     try {
       // Step 1: Create the contract call data
       final calldata = [
@@ -177,6 +212,24 @@ class ContractService {
       ];
     }
     
+    // Use real Starknet service for actual contract reading
+    if (_realStarknetService != null && _realStarknetService!.isInitialized) {
+      try {
+        final entries = await _realStarknetService!.getLeaderboard();
+        
+        // Convert to our format with ranks
+        return entries.map((entry) => LeaderboardEntry(
+          entry.address,
+          entry.xp,
+          entries.indexOf(entry) + 1,
+        )).toList();
+      } catch (e) {
+        print('❌ Failed to read leaderboard from contract via real service: $e');
+        return [];
+      }
+    }
+    
+    // Fallback to legacy RPC implementation
     try {
       final result = await _callContractView(
         contractAddress: _xpContractAddress!,
