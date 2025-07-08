@@ -8,12 +8,12 @@ import '../../services/paymaster_service.dart';
 
 /// Provider for Extended Exchange API client
 final extendedApiClientProvider = Provider<ExtendedApiClient>((ref) {
-  const apiKey = String.fromEnvironment(
-    'EXTENDED_API_KEY',
-    defaultValue: 'demo_key_for_development',
-  );
+  if (isMockMode()) {
+    return ExtendedApiClient(apiKey: 'demo_key_for_development');
+  }
   
-  return ExtendedApiClient(apiKey: apiKey);
+  // Use real Extended API credentials
+  return ExtendedApiClient.withRealCredentials();
 });
 
 /// Provider for real-time market data
@@ -79,6 +79,36 @@ class ExtendedTradingService {
       print('💰 Mock mode: Simulating gasless trade execution for $direction $market');
       print('💳 Mock paymaster sponsoring gas fees');
       return _getMockOrderResponse(market, side, quantity);
+    }
+    
+    // Ensure we're using real Starknet credentials
+    if (!_starknetService.isConnected) {
+      print('🔗 Connecting to Starknet with real credentials...');
+      await _starknetService.connectWithRealCredentials();
+      
+      // Update the Starknet provider state
+      final connectionNotifier = _ref.read(starknetConnectionProvider.notifier);
+      await connectionNotifier.forceConnect();
+    }
+    
+    // Check account funding status before attempting trade
+    print('💰 Checking account funding status...');
+    try {
+      final canTrade = await _client.checkTradingEligibility();
+      if (!canTrade) {
+        final balance = await _client.getAccountBalance();
+        throw ExtendedApiException(
+          'Account not funded: Available balance ${balance.availableBalance} ${balance.currency}. Please deposit funds to vault ${_client.vaultId}.', 
+          402
+        );
+      }
+      print('✅ Account funding verified');
+    } catch (e) {
+      if (e is ExtendedApiException && e.statusCode == 404) {
+        print('⚠️  Cannot verify funding (API not accessible) - proceeding with trade attempt');
+      } else {
+        rethrow;
+      }
     }
     
     try {

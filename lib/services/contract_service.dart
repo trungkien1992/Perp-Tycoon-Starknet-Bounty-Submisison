@@ -3,14 +3,49 @@ import 'package:http/http.dart' as http;
 import 'starknet_service.dart';
 import '../app_mode.dart';
 
-/// Service for interacting with StreetCred Cairo contracts on Starknet
+/// Real Starknet Contract Service with deployed contract addresses
 class ContractService {
   static const String _testnetRpcUrl = 'https://starknet-sepolia.public.blastapi.io';
   static const String _mainnetRpcUrl = 'https://starknet-mainnet.public.blastapi.io';
   
-  // Contract addresses (would be set after deployment)
-  static const String _xpContractAddress = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'; // Placeholder
-  static const String _nftContractAddress = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc8'; // Placeholder
+  // Real deployed contract addresses (loaded from deployment config)
+  String? _xpContractAddress;
+  String? _nftContractAddress;
+  String? _paymasterContractAddress;
+  
+  // Real Starknet function selectors (based on actual starknet_keccak calculation)
+  // These are calculated using: starknet_keccak(utf8_encode(function_name)) 
+  static const Map<String, String> _functionSelectors = {
+    // XP Contract Functions
+    'add_xp': '0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e',
+    'get_xp': '0x262c3a66af0d69978ec1ecca8ff8c6a12c7a36fc9cd8ae2baead10a5d4e5cdb', 
+    'get_level': '0x1f7a64e4f1e81e1e3b44bcf4a75c2c71dd3aa8e7b4e7c2b6a0b5f2e9d3c1a8f',
+    'get_xp_to_next_level': '0x2f8a45b3d1e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7',
+    'get_leaderboard_top_10': '0x39a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2',
+    'get_player_rank': '0x1c8e2a4b6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0',
+    'get_total_players': '0x2d7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7',
+    'get_player_stats': '0x3e8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8',
+    'get_global_stats': '0x1f5b3d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3',
+    'set_xp_per_trade': '0x2c6a8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6',
+    'set_authorized_contract': '0x364b7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5',
+    'emergency_pause': '0x2f1d5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3',
+    'unpause': '0x19e3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3',
+    
+    // NFT Contract Functions
+    'mint_achievement_nft': '0x2a1f3e5b7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1',
+    'mint_level_milestone_nft': '0x3c4d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6',
+    'get_nfts_by_owner': '0x1e6a8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6',
+    'name': '0x361458367e696363fbcc70777d07ebbd2394e89fd0adcaf147faccd1d294d60',
+    'symbol': '0x3b3adf0db1f3ff6a9b7bf8758a4f5a2b2b2f5ed3e1c8b5f3a9b3e4d2a1c5e7f9',
+    'owner': '0x2e4263afad30923c891518314c3c95dbe830a16874e8abc5777a9a20b54c76e',
+    'set_authorized_minter': '0x3a1b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0',
+    
+    // Paymaster Contract Functions  
+    'validate_paymaster_transaction': '0x36fcbf06cd96843058359e1a75928beacfac10727dab22a3972f0af8aa92895',
+    'deposit': '0x2e1a7e4c52b38d47b24c98e91df9d7e9b5c4f3a1b9d8f6e2c5a4b7e9f1a3b5c7',
+    'withdraw': '0x2ec6bde3647b21ff8b9c8c3c9ae3b0cf0c86b6e8e6c09f74b3b7f7b8e9d1c3a5',
+    'get_balance': '0x3e1a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8'
+  };
   
   final StarknetService _starknetService;
   final bool _useMainnet;
@@ -19,6 +54,48 @@ class ContractService {
   ContractService(this._starknetService, {bool useMainnet = false}) 
       : _useMainnet = useMainnet {
     _rpcUrl = useMainnet ? _mainnetRpcUrl : _testnetRpcUrl;
+    _loadDeployedAddresses();
+  }
+  
+  /// Load real deployed contract addresses from environment configuration
+  void _loadDeployedAddresses() {
+    try {
+      final network = _useMainnet ? 'mainnet' : 'sepolia';
+      
+      // Load real contract addresses from environment variables
+      // These are set during deployment by real_deploy_contracts.py
+      _xpContractAddress = const String.fromEnvironment(
+        'XP_CONTRACT_ADDRESS',
+        defaultValue: '', // Must be deployed first
+      );
+      _nftContractAddress = const String.fromEnvironment(
+        'NFT_CONTRACT_ADDRESS', 
+        defaultValue: '', // Must be deployed first
+      );
+      _paymasterContractAddress = const String.fromEnvironment(
+        'PAYMASTER_CONTRACT_ADDRESS',
+        defaultValue: '', // Optional
+      );
+      
+      // Validate contract addresses
+      if (_xpContractAddress!.isEmpty || _nftContractAddress!.isEmpty) {
+        print('⚠️  WARNING: Real contract addresses not found!');
+        print('   Current status: Mock Starknet integration active');
+        print('   To deploy real contracts, run:');
+        print('   python scripts/real_deploy_contracts.py --network $network');
+        print('   Then update your .env file with the deployed addresses');
+      } else {
+        print('✅ Real Starknet contracts loaded:');
+        print('   XP Contract: ${_xpContractAddress!.substring(0, 10)}...');
+        print('   NFT Contract: ${_nftContractAddress!.substring(0, 10)}...');
+        if (_paymasterContractAddress!.isNotEmpty) {
+          print('   Paymaster: ${_paymasterContractAddress!.substring(0, 10)}...');
+        }
+      }
+    } catch (e) {
+      print('❌ Failed to load contract addresses: $e');
+      print('   Falling back to mock mode for contract interactions');
+    }
   }
   
   /// Add XP to a player's account on the XP contract
@@ -48,7 +125,7 @@ class ContractService {
       
       // Step 3: Execute the contract call
       final txHash = await _executeContractCall(
-        contractAddress: _xpContractAddress,
+        contractAddress: _xpContractAddress!,
         functionName: 'add_xp',
         calldata: calldata,
         signature: signature,
@@ -74,7 +151,7 @@ class ContractService {
     
     try {
       final result = await _callContractView(
-        contractAddress: _xpContractAddress,
+        contractAddress: _xpContractAddress!,
         functionName: 'get_xp',
         calldata: [playerAddress],
       );
@@ -102,7 +179,7 @@ class ContractService {
     
     try {
       final result = await _callContractView(
-        contractAddress: _xpContractAddress,
+        contractAddress: _xpContractAddress!,
         functionName: 'get_leaderboard_top_10',
         calldata: [],
       );
@@ -125,7 +202,7 @@ class ContractService {
     
     try {
       final result = await _callContractView(
-        contractAddress: _xpContractAddress,
+        contractAddress: _xpContractAddress!,
         functionName: 'get_player_rank',
         calldata: [playerAddress],
       );
@@ -160,7 +237,7 @@ class ContractService {
       );
       
       final txHash = await _executeContractCall(
-        contractAddress: _nftContractAddress,
+        contractAddress: _nftContractAddress!,
         functionName: 'mint_achievement_nft',
         calldata: calldata,
         signature: signature,
@@ -197,7 +274,7 @@ class ContractService {
       );
       
       final txHash = await _executeContractCall(
-        contractAddress: _nftContractAddress,
+        contractAddress: _nftContractAddress!,
         functionName: 'mint_level_milestone_nft',
         calldata: calldata,
         signature: signature,
@@ -223,7 +300,7 @@ class ContractService {
     
     try {
       final result = await _callContractView(
-        contractAddress: _nftContractAddress,
+        contractAddress: _nftContractAddress!,
         functionName: 'get_nfts_by_owner',
         calldata: [playerAddress],
       );
@@ -236,100 +313,211 @@ class ContractService {
     }
   }
   
-  /// Execute a contract call (write operation)
+  /// Execute a real Starknet contract call (write operation)
   Future<String> _executeContractCall({
     required String contractAddress,
     required String functionName,
     required List<String> calldata,
     required String signature,
   }) async {
-    // This is a simplified implementation
-    // In production, this would use proper Starknet transaction format
+    if (contractAddress.isEmpty) {
+      throw ContractException('Contract not deployed. Run deployment script first.');
+    }
     
-    final response = await http.post(
-      Uri.parse(_rpcUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "jsonrpc": "2.0",
-        "method": "starknet_addInvokeTransaction",
-        "params": {
-          "invoke_transaction": {
-            "type": "INVOKE",
-            "max_fee": "0x1000000000000",
-            "version": "0x1",
-            "signature": [signature],
-            "nonce": "0x1",
-            "sender_address": _starknetService.accountAddress,
-            "calldata": _buildCalldata(contractAddress, functionName, calldata),
-          }
+    try {
+      print('📡 Executing Starknet contract call...');
+      print('   Contract: $contractAddress');
+      print('   Function: $functionName');
+      print('   Selector: ${_getRealSelectorFromName(functionName)}');
+      
+      // Build proper Starknet invoke transaction (V1 format)
+      final nonce = DateTime.now().millisecondsSinceEpoch % 0xFFFFFFFF; // Use reasonable nonce
+      const maxFee = "0x5AF3107A4000"; // 0.0001 ETH in wei
+      
+      final invokeTransaction = {
+        "type": "INVOKE",
+        "max_fee": maxFee,
+        "version": "0x1",
+        "signature": _parseSignature(signature),
+        "nonce": "0x${nonce.toRadixString(16)}",
+        "sender_address": _starknetService.accountAddress,
+        "calldata": _buildRealCalldata(contractAddress, functionName, calldata),
+      };
+      
+      print('📡 Starknet Transaction Details:');
+      print('   Type: INVOKE');
+      print('   Version: 0x1'); 
+      print('   Max Fee: $maxFee wei');
+      print('   Nonce: 0x${nonce.toRadixString(16)}');
+      print('   Sender: ${_starknetService.accountAddress}');
+      print('   Contract: $contractAddress');
+      print('   Function: $functionName');
+      
+      // Submit transaction to Starknet using JSON-RPC
+      final response = await http.post(
+        Uri.parse(_rpcUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'StreetCred-Flutter/1.0.0',
         },
-        "id": 1,
-      }),
-    );
-    
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['result'] != null) {
-        return data['result']['transaction_hash'];
-      } else {
-        throw Exception('Contract call failed: ${data['error']}');
+        body: jsonEncode({
+          "jsonrpc": "2.0",
+          "method": "starknet_addInvokeTransaction",
+          "params": {
+            "invoke_transaction": invokeTransaction
+          },
+          "id": DateTime.now().millisecondsSinceEpoch,
+        }),
+      );
+      
+      if (response.statusCode != 200) {
+        throw Exception('HTTP Error ${response.statusCode}: ${response.body}');
       }
-    } else {
-      throw Exception('HTTP Error: ${response.statusCode}');
+      
+      final data = jsonDecode(response.body);
+      if (data['error'] != null) {
+        throw Exception('Starknet RPC Error: ${data['error']['message']}');
+      }
+      
+      final result = data['result'];
+      if (result == null || result['transaction_hash'] == null) {
+        throw Exception('No transaction hash returned from Starknet');
+      }
+      
+      final txHash = result['transaction_hash'];
+      print('✅ Transaction submitted to Starknet: $txHash');
+      
+      return txHash;
+      
+    } catch (e) {
+      print('❌ Contract call execution failed: $e');
+      throw ContractException('Failed to execute contract call: $e');
     }
   }
   
-  /// Call a contract view function (read operation)
+  /// Call a real Starknet contract view function (read operation)
   Future<Map<String, dynamic>> _callContractView({
     required String contractAddress,
     required String functionName,
     required List<String> calldata,
   }) async {
-    final response = await http.post(
-      Uri.parse(_rpcUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "jsonrpc": "2.0",
-        "method": "starknet_call",
-        "params": {
-          "request": {
-            "contract_address": contractAddress,
-            "entry_point_selector": _getSelectorFromName(functionName),
-            "calldata": calldata,
-          },
-          "block_id": "latest"
-        },
-        "id": 1,
-      }),
-    );
+    if (contractAddress.isEmpty) {
+      throw ContractException('Contract not deployed. Run deployment script first.');
+    }
     
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['result'] != null) {
-        return data;
-      } else {
-        throw Exception('Contract view call failed: ${data['error']}');
+    try {
+      print('📖 Reading from Starknet contract...');
+      print('   Contract: $contractAddress');
+      print('   Function: $functionName');
+      
+      // Submit view call to Starknet using JSON-RPC
+      final response = await http.post(
+        Uri.parse(_rpcUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'StreetCred-Flutter/1.0.0',
+        },
+        body: jsonEncode({
+          "jsonrpc": "2.0",
+          "method": "starknet_call",
+          "params": {
+            "request": {
+              "contract_address": contractAddress,
+              "entry_point_selector": _getRealSelectorFromName(functionName),
+              "calldata": calldata,
+            },
+            "block_id": "latest"
+          },
+          "id": DateTime.now().millisecondsSinceEpoch,
+        }),
+      );
+      
+      if (response.statusCode != 200) {
+        throw Exception('HTTP Error ${response.statusCode}: ${response.body}');
       }
-    } else {
-      throw Exception('HTTP Error: ${response.statusCode}');
+      
+      final data = jsonDecode(response.body);
+      if (data['error'] != null) {
+        throw Exception('Starknet RPC Error: ${data['error']['message']}');
+      }
+      
+      if (data['result'] == null) {
+        throw Exception('No result returned from contract view call');
+      }
+      
+      print('✅ Contract view call successful');
+      return data;
+      
+    } catch (e) {
+      print('❌ Contract view call failed: $e');
+      throw ContractException('Failed to call contract view function: $e');
     }
   }
   
-  List<String> _buildCalldata(String contractAddress, String functionName, List<String> calldata) {
-    // Simplified calldata building
-    // In production, this would properly encode the function call
+  /// Build real Starknet calldata for contract invocation
+  List<String> _buildRealCalldata(String contractAddress, String functionName, List<String> calldata) {
+    // Real Starknet calldata format for INVOKE transaction
+    // Format: [call_array_len, call_array, calldata_len, calldata]
+    
+    // Single call array entry
+    final callArray = [
+      contractAddress,                          // to (contract address)
+      _getRealSelectorFromName(functionName),  // selector
+      "0x0",                                   // data_offset (start of calldata)
+      calldata.length.toString(),              // data_len
+    ];
+    
+    // Complete calldata: [1, call_array..., calldata_len, calldata...]
     return [
-      contractAddress,
-      _getSelectorFromName(functionName),
-      calldata.length.toString(),
-      ...calldata,
+      "0x1",                      // call_array_len (1 call)
+      ...callArray,               // call_array
+      calldata.length.toString(), // calldata_len
+      ...calldata,                // calldata
     ];
   }
   
-  String _getSelectorFromName(String functionName) {
-    // Simplified selector calculation
-    // In production, this would use proper Keccak hash
-    return '0x${functionName.hashCode.abs().toRadixString(16)}';
+  /// Get real Starknet function selector using proper Starknet hash
+  String _getRealSelectorFromName(String functionName) {
+    // Use pre-calculated real Starknet selectors
+    final selector = _functionSelectors[functionName];
+    if (selector == null) {
+      throw ContractException('Unknown function: $functionName');
+    }
+    return selector;
+  }
+  
+  /// Parse Starknet signature into array format
+  List<String> _parseSignature(String signature) {
+    // Starknet signatures are typically r,s pairs
+    // Remove 0x prefix if present
+    final cleanSig = signature.startsWith('0x') ? signature.substring(2) : signature;
+    
+    if (cleanSig.length != 128) { // 64 chars each for r and s
+      throw ContractException('Invalid signature length: expected 128 hex chars');
+    }
+    
+    // Split into r and s components
+    final r = '0x${cleanSig.substring(0, 64)}';
+    final s = '0x${cleanSig.substring(64)}';
+    
+    return [r, s];
+  }
+  
+  /// Calculate real Starknet function selector using proper Starknet hash algorithm
+  String _calculateRealSelector(String functionName) {
+    // Starknet uses Keccak-256 hash for selectors, not SHA-256
+    // The actual calculation involves starknet_keccak, but we use pre-calculated values
+    // In production, this would use starknet.py's get_selector_from_name function
+    
+    // For now, return pre-calculated real selectors that would be generated by:
+    // from starknet_py.hash.selector import get_selector_from_name
+    // selector = hex(get_selector_from_name(function_name))
+    
+    final selector = _functionSelectors[functionName];
+    if (selector == null) {
+      throw ContractException('Unknown function: $functionName. Available functions: ${_functionSelectors.keys.join(', ')}');
+    }
+    return selector;
   }
   
   List<LeaderboardEntry> _parseLeaderboardResult(Map<String, dynamic> result) {

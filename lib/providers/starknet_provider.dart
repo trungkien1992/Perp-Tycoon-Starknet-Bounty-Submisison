@@ -61,10 +61,12 @@ class StarknetConnectionNotifier extends StateNotifier<StarknetConnectionState> 
     _initializeConnection();
   }
   
-  /// Initialize connection (auto-connect in mock mode)
+  /// Initialize connection (auto-connect in mock mode, real credentials otherwise)
   Future<void> _initializeConnection() async {
     if (isMockMode()) {
       await createTestAccount();
+    } else {
+      await connectWithRealCredentials();
     }
   }
   
@@ -114,6 +116,34 @@ class StarknetConnectionNotifier extends StateNotifier<StarknetConnectionState> 
   void disconnect() {
     _starknetService.disconnect();
     state = const StarknetConnectionState();
+  }
+  
+  /// Connect with real Extended API credentials
+  Future<void> connectWithRealCredentials() async {
+    state = state.copyWith(isLoading: true, error: null);
+    
+    try {
+      await _starknetService.connectWithRealCredentials();
+      state = state.copyWith(
+        isConnected: true,
+        accountAddress: _starknetService.accountAddress,
+        publicKey: _starknetService.publicKey,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isConnected: false,
+        error: e.toString(),
+        isLoading: false,
+      );
+    }
+  }
+  
+  /// Force reconnect with real credentials
+  Future<void> forceConnect() async {
+    if (!isMockMode()) {
+      await connectWithRealCredentials();
+    }
   }
   
   /// Get Starknet service for signing operations

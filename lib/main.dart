@@ -5,8 +5,14 @@ import 'screens/login_screen.dart';
 import 'screens/trading_screen.dart';
 import 'screens/result_screen.dart';
 import 'providers/auth_provider.dart';
+import 'services/secure_config_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize secure configuration
+  await SecureConfigService.initialize();
+  
   runApp(
     ProviderScope(
       child: StreetCredMinimalApp(),

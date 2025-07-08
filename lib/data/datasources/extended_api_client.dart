@@ -4,12 +4,14 @@ import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import '../../services/starknet_service.dart';
+import '../../services/secure_config_service.dart';
 
 /// Extended Exchange API client for perpetual futures trading
 class ExtendedApiClient {
   final String _baseUrl;
   final String _apiKey;
   final String _wsUrl;
+  final String _vaultId;
   late http.Client _httpClient;
   WebSocketChannel? _wsChannel;
   StreamController<ExtendedMarketData>? _marketDataController;
@@ -18,16 +20,39 @@ class ExtendedApiClient {
     required String apiKey,
     String baseUrl = 'https://api.extended.exchange',
     String wsUrl = 'wss://ws.extended.exchange',
+    String vaultId = '101420',
   })  : _apiKey = apiKey,
         _baseUrl = baseUrl,
-        _wsUrl = wsUrl {
+        _wsUrl = wsUrl,
+        _vaultId = vaultId {
     _httpClient = http.Client();
+  }
+  
+  /// Get vault ID for funding checks
+  String get vaultId => _vaultId;
+  
+  /// Create client with real Extended API credentials from secure configuration
+  factory ExtendedApiClient.withRealCredentials() {
+    final config = SecureConfigService.getExtendedApiConfig();
+    
+    print('🔐 Extended API client configured with secure credentials');
+    print('🔑 API Key: ${config.maskedApiKey}');
+    print('🏦 Vault: ${config.vaultId}');
+    print('🌐 Base URL: ${config.baseUrl}');
+    
+    return ExtendedApiClient(
+      apiKey: config.apiKey,
+      baseUrl: config.baseUrl,
+      wsUrl: config.wsUrl,
+      vaultId: config.vaultId,
+    );
   }
 
   /// Headers for API requests
   Map<String, String> get _headers => {
         'Content-Type': 'application/json',
         'X-Api-Key': _apiKey,
+        'X-Vault-Id': _vaultId,
         'User-Agent': 'StreetCredClash/1.0.0',
       };
 
@@ -212,6 +237,34 @@ class ExtendedApiClient {
         'Failed to fetch positions: ${response.statusCode}',
         response.statusCode,
       );
+    }
+  }
+
+  /// Get account balance and funding information
+  Future<ExtendedAccountBalance> getAccountBalance() async {
+    final response = await _httpClient.get(
+      Uri.parse('$_baseUrl/v1/account/balance'),
+      headers: _headers,
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return ExtendedAccountBalance.fromJson(data);
+    } else {
+      throw ExtendedApiException(
+        'Failed to fetch account balance: ${response.statusCode}',
+        response.statusCode,
+      );
+    }
+  }
+
+  /// Check if account has sufficient funds for trading
+  Future<bool> checkTradingEligibility() async {
+    try {
+      final balance = await getAccountBalance();
+      return balance.availableBalance > 0.0 && balance.isEligibleForTrading;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -505,6 +558,45 @@ class ExtendedPosition {
       return 0.0;
     }
   }
+}
+
+/// Account balance information
+class ExtendedAccountBalance {
+  final double totalBalance;
+  final double availableBalance;
+  final double marginUsed;
+  final double unrealizedPnl;
+  final String currency;
+  final bool isEligibleForTrading;
+  final DateTime lastUpdated;
+
+  ExtendedAccountBalance({
+    required this.totalBalance,
+    required this.availableBalance,
+    required this.marginUsed,
+    required this.unrealizedPnl,
+    required this.currency,
+    required this.isEligibleForTrading,
+    required this.lastUpdated,
+  });
+
+  factory ExtendedAccountBalance.fromJson(Map<String, dynamic> json) {
+    return ExtendedAccountBalance(
+      totalBalance: double.tryParse(json['totalBalance']?.toString() ?? '0') ?? 0.0,
+      availableBalance: double.tryParse(json['availableBalance']?.toString() ?? '0') ?? 0.0,
+      marginUsed: double.tryParse(json['marginUsed']?.toString() ?? '0') ?? 0.0,
+      unrealizedPnl: double.tryParse(json['unrealizedPnl']?.toString() ?? '0') ?? 0.0,
+      currency: json['currency']?.toString() ?? 'USD',
+      isEligibleForTrading: json['isEligibleForTrading'] == true,
+      lastUpdated: DateTime.fromMillisecondsSinceEpoch(
+        json['lastUpdated'] ?? DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
+  }
+
+  bool get hasSufficientFunds => availableBalance > 0.0;
+  bool get canTrade => isEligibleForTrading && hasSufficientFunds;
+  double get freeMargin => availableBalance - marginUsed;
 }
 
 /// Extended API Exception
