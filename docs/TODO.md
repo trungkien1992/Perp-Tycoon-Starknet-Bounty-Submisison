@@ -4,7 +4,23 @@
 
 ### 🔥 High Priority - Immediate Action Required
 
-#### 1. **Document Indexing** (Status: Ready to Execute)
+#### 1. **StarkEx Signature Format Debugging** (Status: Critical)
+- **Task**: Debug StarkEx signature format for Extended Exchange compatibility
+- **Estimate**: 2-4 hours
+- **Current Issue**: Error 1101 (Invalid StarkEx signature)
+- **Context**: 
+  - Signature generation framework complete
+  - Account balance accessible ($12.94)
+  - 6 markets configured and tested
+  - All non-signature validations passing
+- **Next Steps**:
+  - Analyze Extended Exchange signature format requirements
+  - Compare with cairo-lang signature generation
+  - Test with minimal working example
+- **Expected Outcome**: Working cryptocurrency position creation
+- **Dependencies**: StarkEx crypto implementation (✅ Complete)
+
+#### 2. **Document Indexing** (Status: Ready to Execute)
 - **Task**: Index all SDK documentation into vector database
 - **Estimate**: 2-3 hours
 - **Commands**:
@@ -16,18 +32,12 @@
 - **Expected Outcome**: 500+ documents indexed across 4 platforms
 - **Dependencies**: RAG backend running (✅ Complete)
 
-#### 2. **Search Performance Optimization** (Status: Pending)
-- **Task**: Optimize search response times and relevance
-- **Estimate**: 1-2 hours
-- **Steps**:
-  - Run optimization: `curl -X POST http://localhost:8000/optimize`
-  - Monitor performance metrics
-  - Adjust similarity thresholds if needed
-- **Expected Outcome**: <50ms average search response time
-- **Dependencies**: Document indexing complete
-
-#### 3. **Mobile UI Testing** (Status: Pending)
-- **Task**: Comprehensive testing of Flutter app with real RAG data
+#### 3. **Real Trading Position Execution** (Status: Pending Signature Fix)
+- **Task**: Execute real AVAX/EUR long position with all available funds
+- **Estimate**: 30 minutes
+- **Context**: System ready, awaiting signature validation fix
+- **Expected Outcome**: Live position visible on Extended Exchange website
+- **Dependencies**: StarkEx signature format debugging complete
 - **Estimate**: 1-2 hours
 - **Steps**:
   - Test search functionality with indexed documents
