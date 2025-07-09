@@ -1,0 +1,238 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StreetCred API Types Schema",
+  "description": "JSON schema for validation of API types across services",
+  "definitions": {
+    "TradingPair": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "description": "Trading pair symbol (e.g., ETH-USD)"
+        },
+        "base_asset": {
+          "type": "string",
+          "description": "Base asset symbol"
+        },
+        "quote_asset": {
+          "type": "string",
+          "description": "Quote asset symbol"
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 18
+        }
+      },
+      "required": ["symbol", "base_asset", "quote_asset", "decimals"]
+    },
+    "OrderSide": {
+      "type": "string",
+      "enum": ["buy", "sell"]
+    },
+    "OrderType": {
+      "type": "string",
+      "enum": ["market", "limit", "stop", "stopLimit"]
+    },
+    "OrderStatus": {
+      "type": "string",
+      "enum": ["pending", "partiallyFilled", "filled", "cancelled", "rejected"]
+    },
+    "OrderRequest": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "$ref": "#/definitions/OrderSide"
+        },
+        "type": {
+          "$ref": "#/definitions/OrderType"
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0
+        },
+        "stop_price": {
+          "type": "number",
+          "minimum": 0
+        },
+        "client_order_id": {
+          "type": "string"
+        },
+        "time_in_force": {
+          "type": "integer"
+        }
+      },
+      "required": ["symbol", "side", "type", "quantity"]
+    },
+    "OrderResponse": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "side": {
+          "$ref": "#/definitions/OrderSide"
+        },
+        "type": {
+          "$ref": "#/definitions/OrderType"
+        },
+        "quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "filled_quantity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0
+        },
+        "average_price": {
+          "type": "number",
+          "minimum": 0
+        },
+        "status": {
+          "$ref": "#/definitions/OrderStatus"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "client_order_id": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": ["order_id", "symbol", "side", "type", "quantity", "filled_quantity", "status", "created_at"]
+    },
+    "MarketData": {
+      "type": "object",
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number",
+          "minimum": 0
+        },
+        "high_24h": {
+          "type": "number",
+          "minimum": 0
+        },
+        "low_24h": {
+          "type": "number",
+          "minimum": 0
+        },
+        "volume_24h": {
+          "type": "number",
+          "minimum": 0
+        },
+        "change_24h": {
+          "type": "number"
+        },
+        "change_percent_24h": {
+          "type": "number"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["symbol", "price", "high_24h", "low_24h", "volume_24h", "change_24h", "change_percent_24h", "timestamp"]
+    },
+    "Balance": {
+      "type": "object",
+      "properties": {
+        "asset": {
+          "type": "string"
+        },
+        "available": {
+          "type": "number",
+          "minimum": 0
+        },
+        "locked": {
+          "type": "number",
+          "minimum": 0
+        },
+        "total": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": ["asset", "available", "locked", "total"]
+    },
+    "StarknetSignature": {
+      "type": "object",
+      "properties": {
+        "r": {
+          "type": "string",
+          "pattern": "^0x[a-fA-F0-9]+$"
+        },
+        "s": {
+          "type": "string",
+          "pattern": "^0x[a-fA-F0-9]+$"
+        },
+        "public_key": {
+          "type": "string",
+          "pattern": "^0x[a-fA-F0-9]+$"
+        },
+        "message_hash": {
+          "type": "string",
+          "pattern": "^0x[a-fA-F0-9]+$"
+        },
+        "recovery": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      },
+      "required": ["r", "s", "public_key", "message_hash", "recovery"]
+    },
+    "ApiError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z_]+_\\d{3}$"
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "object"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "trace_id": {
+              "type": "string"
+            }
+          },
+          "required": ["code", "message", "timestamp", "trace_id"]
+        }
+      },
+      "required": ["error"]
+    }
+  }
+}

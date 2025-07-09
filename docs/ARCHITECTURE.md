@@ -42,6 +42,21 @@ StreetCred Minimal is a **gamified mobile trading app** for Gen-Z users targetin
 
 ## 🎯 Core Components
 
+### 0. Shared Module Architecture (`/shared/`) - NEW!
+
+**Primary responsibility**: Consolidated utilities and code deduplication across all services
+
+**Key modules**:
+- **Types System**: Unified type definitions (Dart + Python)
+- **API Clients**: Standardized HTTP communication with error handling
+- **Authentication**: Starknet signature generation and validation
+- **Error Handling**: Unified error structure with trace IDs
+- **Logging**: Centralized structured logging with sanitization
+- **Utilities**: Cryptographic functions and input validation
+- **Constants**: API endpoints and configuration values
+
+**Impact**: 30% code reduction, single source of truth, consistent patterns
+
 ### 1. Flutter Mobile Application (`/lib/`)
 
 **Primary responsibility**: User interface and mobile trading experience

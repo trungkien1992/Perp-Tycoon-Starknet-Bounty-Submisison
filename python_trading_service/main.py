@@ -231,8 +231,10 @@ class ExtendedExchangeClient:
                 expiration_timestamp=expiration
             )
             
-            logger.info(f"Generated StarkEx signature for {market} {side} order")
-            logger.info(f"Message hash: {signature_result.get('msgHash')}")
+            logger.info(f"✅ Generated StarkEx signature for {market} {side} order")
+            logger.info(f"📝 Message hash: {signature_result.get('msgHash')}")
+            logger.info(f"🔐 Signature R: {signature_result['signature']['r']}")
+            logger.info(f"🔐 Signature S: {signature_result['signature']['s']}")
             
             return {
                 'signature': signature_result['signature'],
@@ -241,18 +243,15 @@ class ExtendedExchangeClient:
             }
             
         except Exception as e:
-            logger.error(f"StarkEx signature generation failed: {e}")
-            # Fallback to sample signatures for testing
-            logger.warning("Using fallback sample signatures for testing")
+            logger.error(f"❌ StarkEx signature generation failed: {e}")
+            import traceback
+            traceback.print_exc()
             
-            return {
-                'signature': {
-                    'r': '0x39ff8493e8e26c9a588a7046e1380b6e1201287a179e10831b7040d3efc26d1',
-                    's': '0x5c9acd1879bf8d43e4ccd14648186d2a9edf387fe1b61e491fe0a539de3272b'
-                },
-                'starkKey': '0x075a5dbd0f632a28521fc860e4992fa11c4fa47f6e67e1a4094ed98d49cf946e',
-                'collateralPosition': self.vault_id
-            }
+            # Re-raise the error since signatures are critical for trading
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to generate StarkEx signature: {str(e)}"
+            )
 
     async def create_order(self, order_request: OrderRequest) -> OrderResponse:
         """Create a new trading order with proper StarkEx signature"""

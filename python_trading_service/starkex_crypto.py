@@ -116,6 +116,24 @@ class StarkExOrderSigner:
             'collateral_id': 0x2893294412a4c8f915f75892b395ebbf6859ec246ec365c3b1f56f47c3a0a5d,
             'synthetic_decimals': 10,
             'collateral_decimals': 6
+        },
+        'AVAX-USD': {
+            'synthetic_id': 0x415641582d555344000000000000000,
+            'collateral_id': 0x2893294412a4c8f915f75892b395ebbf6859ec246ec365c3b1f56f47c3a0a5d,
+            'synthetic_decimals': 10,
+            'collateral_decimals': 6
+        },
+        'BNB-USD': {
+            'synthetic_id': 0x424e422d55534400000000000000000,
+            'collateral_id': 0x2893294412a4c8f915f75892b395ebbf6859ec246ec365c3b1f56f47c3a0a5d,
+            'synthetic_decimals': 10,
+            'collateral_decimals': 6
+        },
+        'LTC-USD': {
+            'synthetic_id': 0x4c54432d55534400000000000000000,
+            'collateral_id': 0x2893294412a4c8f915f75892b395ebbf6859ec246ec365c3b1f56f47c3a0a5d,
+            'synthetic_decimals': 10,
+            'collateral_decimals': 6
         }
     }
     
