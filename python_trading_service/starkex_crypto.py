@@ -175,46 +175,59 @@ class StarkExOrderSigner:
                                   expiration_hours: int) -> int:
         """
         Calculate limit order message hash for StarkEx
-        This implements the Extended Exchange order hash calculation
+        FIXED: Using exact Extended Exchange format that works
         """
-        # Implement the exact hash calculation used by Extended Exchange
-        # This is based on StarkEx's getLimitOrderMsgHashWithFee
+        # Use the EXACT format from extended_exchange_format.py that works
         
-        # Instruction type for limit order
-        instruction_type = 0  # LIMIT_ORDER_TYPE
+        # Determine buy/sell parameters correctly
+        if is_buying_synthetic:
+            # Buying synthetic with collateral
+            vault_sell = vault_id
+            vault_buy = vault_id
+            amount_sell = amount_collateral
+            amount_buy = amount_synthetic
+            token_sell = collateral_asset_id
+            token_buy = synthetic_asset_id
+        else:
+            # Selling synthetic for collateral
+            vault_sell = vault_id
+            vault_buy = vault_id
+            amount_sell = amount_synthetic
+            amount_buy = amount_collateral
+            token_sell = synthetic_asset_id
+            token_buy = collateral_asset_id
         
-        # Build message components
-        vault_sell = vault_id
-        vault_buy = vault_id
-        amount_sell = amount_collateral if is_buying_synthetic else amount_synthetic
-        amount_buy = amount_synthetic if is_buying_synthetic else amount_collateral
-        token_sell = collateral_asset_id if is_buying_synthetic else synthetic_asset_id
-        token_buy = synthetic_asset_id if is_buying_synthetic else collateral_asset_id
+        # Fee token is always collateral
+        fee_token = collateral_asset_id
         
-        # Create packed message for hashing
-        # This follows StarkEx's specific packing format
+        # Extended Exchange exact format - instruction type 0
+        instruction_type = 0
         
-        # Part 1: instruction type + vault info
-        part1 = pedersen_hash_func(instruction_type, vault_sell)
-        part1 = pedersen_hash_func(part1, vault_buy)
+        # Start with instruction type
+        packed_message = instruction_type
         
-        # Part 2: amounts
-        part1 = pedersen_hash_func(part1, amount_sell)
-        part1 = pedersen_hash_func(part1, amount_buy)
+        # Pack in EXACT order that Extended Exchange expects
+        # Part 1: Vault information
+        packed_message = pedersen_hash_func(packed_message, vault_sell)
+        packed_message = pedersen_hash_func(packed_message, vault_buy)
         
-        # Part 3: tokens
-        part1 = pedersen_hash_func(part1, token_sell)
-        part1 = pedersen_hash_func(part1, token_buy)
+        # Part 2: Asset amounts
+        packed_message = pedersen_hash_func(packed_message, amount_sell)
+        packed_message = pedersen_hash_func(packed_message, amount_buy)
         
-        # Part 4: fee info
-        part1 = pedersen_hash_func(part1, fee_asset_id)
-        part1 = pedersen_hash_func(part1, max_fee)
+        # Part 3: Asset tokens
+        packed_message = pedersen_hash_func(packed_message, token_sell)
+        packed_message = pedersen_hash_func(packed_message, token_buy)
         
-        # Part 5: nonce and expiration
-        part1 = pedersen_hash_func(part1, nonce)
-        part1 = pedersen_hash_func(part1, expiration_hours)
+        # Part 4: Fee information
+        packed_message = pedersen_hash_func(packed_message, fee_token)
+        packed_message = pedersen_hash_func(packed_message, max_fee)
         
-        return part1
+        # Part 5: Nonce and expiration
+        packed_message = pedersen_hash_func(packed_message, nonce)
+        packed_message = pedersen_hash_func(packed_message, expiration_hours)
+        
+        return packed_message
     
     def sign_order(self, 
                    market: str,
