@@ -109,7 +109,7 @@ This is the "end game" loop that drives long-term retention.
 - **XP Milestone**: Reach level 50
 - **Achievement Combo**: Complete 10 different achievements
 
-### Stark Token Rewards (On-Chain NFTs)
+### On-Chain NFTs
 Upon reaching a significant milestone, players can choose to "Retire Rich," which resets their virtual cash, upgrades, and bots. In return, they earn on-chain "Stark Tokens" (potentially NFTs) that provide powerful, permanent global boosts:
 
 - **BlackRock Blessing**: All bots trade 25% faster, forever
