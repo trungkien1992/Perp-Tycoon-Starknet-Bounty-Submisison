@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'screens/login_screen.dart';
-import 'screens/trading_screen.dart';
+import 'screens/casino_floor_screen.dart';
 import 'screens/result_screen.dart';
 import 'providers/auth_provider.dart';
 import 'services/secure_config_service.dart';
@@ -26,15 +26,54 @@ class StreetCredMinimalApp extends ConsumerWidget {
     final authState = ref.watch(authProvider);
     
     final router = GoRouter(
-      initialLocation: authState.isAuthenticated ? '/trade' : '/',
+      initialLocation: authState.isAuthenticated ? '/casino' : '/',
       routes: [
         GoRoute(
           path: '/',
           builder: (context, state) => LoginScreen(),
         ),
         GoRoute(
-          path: '/trade',
-          builder: (context, state) => TradingScreen(),
+          path: '/casino',
+          builder: (context, state) => CasinoFloorScreen(),
+        ),
+        GoRoute(
+          path: '/upgrade-shop',
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(title: Text('Upgrade Shop - Coming Soon')),
+            body: Center(
+              child: Text(
+                'Upgrade Shop\nComing in Phase 1',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/bot-management',
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(title: Text('Bot Management - Coming Soon')),
+            body: Center(
+              child: Text(
+                'Bot Management\nComing in Phase 1',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/prestige',
+          builder: (context, state) => Scaffold(
+            appBar: AppBar(title: Text('Prestige - Coming Soon')),
+            body: Center(
+              child: Text(
+                'Prestige System\nComing in Phase 1',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+          ),
         ),
         GoRoute(
           path: '/result',
@@ -60,14 +99,14 @@ class StreetCredMinimalApp extends ConsumerWidget {
           return '/';
         }
         if (isAuthenticated && isOnLoginPage) {
-          return '/trade';
+          return '/casino';
         }
         return null;
       },
     );
 
     return MaterialApp.router(
-      title: 'StreetCred Minimal',
+      title: 'Perp Tycoon - Casino Idle Game',
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.cyan,

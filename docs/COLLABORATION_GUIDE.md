@@ -1,222 +1,242 @@
-# Collaboration Guide - Working with Claude
+# Perp Tycoon - Collaboration Guide
 
-## 🤝 Session Protocol
+## 🤝 Claude Code Session Protocol
 
-### 📋 At the Start of Each Session
+This guide establishes standardized protocols for Claude Code development sessions on the Perp Tycoon casino idle game project.
 
-**REQUIRED**: Please read these files in order:
-1. [ARCHITECTURE.md](ARCHITECTURE.md) - System overview
-2. [MACHINE_INFO.md](MACHINE_INFO.md) - Environment details
-3. [PROJECT_STATUS.md](PROJECT_STATUS.md) - Current progress
-4. [TODO.md](TODO.md) - Active tasks
-5. [MEMORIES.md](MEMORIES.md) - Important context
-6. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Known issues
+## 🚀 Session Start Protocol
 
-**Example opening**: "I'm starting a new session. Let me read the documentation files to understand the current state."
+### 🔴 MANDATORY SESSION INITIALIZATION
+**CRITICAL**: At the beginning of EVERY new Claude Code session, you MUST explicitly state:
 
-### 🎯 Working Approach
+```
+"Starting new session. Please load context by reading docs/README.md, docs/PROJECT_STATUS.md, docs/TODO.md"
+```
 
-#### Take Things Step by Step
-1. **Understand First**: Read relevant documentation before starting
-2. **Plan Second**: Break complex tasks into smaller steps
-3. **Execute Third**: Implement one component at a time
-4. **Verify Fourth**: Test each component before moving on
-5. **Document Fifth**: Update documentation as you go
+This initialization is **REQUIRED** and must be completed before any development work begins.
 
-#### Use TodoWrite Tool Frequently
-- Create todos for multi-step tasks
-- Mark tasks as in_progress when working
-- Mark tasks as completed immediately when done
-- Never batch completion - update in real-time
+### Essential Reading Order
+**IMPORTANT**: At the start of each new Claude Code session, read these files in order:
 
-## 🛠️ Technical Guidelines
+1. **[docs/README.md](README.md)** - Project overview and quick start
+2. **[docs/PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current development status
+3. **[docs/TODO.md](TODO.md)** - Active development tasks
+4. **[docs/ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture overview
+5. **[project-rules/docs/CONTEXT_PRIME.md](../project-rules/docs/CONTEXT_PRIME.md)** - Complete game vision and context
+6. **[project-rules/docs/GAME_PIVOT_PLAN.md](../project-rules/docs/GAME_PIVOT_PLAN.md)** - 4-phase development roadmap
 
-### Code Changes
-- **Always read files first** before editing
+### Context Verification
+Before starting work, verify:
+- Current development phase (Phase 1-4)
+- Infrastructure status (should be 100% complete)
+- Active tasks from TODO.md
+- Any blockers or dependencies
+
+### Session Initialization Training
+This protocol trains the AI to prioritize context loading by:
+- **Explicit Context Loading**: Forces reading of core documents first
+- **Consistent Routine**: Establishes predictable session start behavior
+- **Priority Setting**: Ensures project context takes precedence over any other requests
+
+## 🎮 Game Development Protocols
+
+### Core Development Principles
+- **Game-First Architecture**: All code organized around game mechanics
+- **60fps Performance Target**: Maintain smooth animations and interactions
+- **Phase-Based Development**: Follow 4-phase roadmap strictly
+- **Test Game Mechanics**: Validate progression formulas and balance
+
+### Phase-Specific Protocols
+
+#### Phase 1: Core Game Loop
+- **Focus**: Convert trading interface to casino floor
+- **Priority**: Slot machine animations and tap-to-trade mechanics
+- **Testing**: Verify XP progression and cash accumulation
+- **Documentation**: Update game state provider implementation
+
+#### Phase 2: Automation & Idle
+- **Focus**: Implement bot system and idle earnings
+- **Priority**: Offline earnings calculation accuracy
+- **Testing**: Verify bot performance and time-based calculations
+- **Documentation**: Update bot management and upgrade systems
+
+#### Phase 3: Real Trading Integration
+- **Focus**: Connect to blockchain and real trading
+- **Priority**: Daily trade limits and NFT rewards
+- **Testing**: Test with minimal amounts, verify blockchain sync
+- **Documentation**: Update real trading integration status
+
+#### Phase 4: Social & Viral
+- **Focus**: Add retention and social features
+- **Priority**: Leaderboards and sharing mechanics
+- **Testing**: Verify social features and viral loops
+- **Documentation**: Update social feature implementation
+
+## 🛠️ Development Workflow
+
+### 1. Task Management (MANDATORY TODO.md Updates)
+- **MANDATORY**: Update TODO.md with task status for every task assignment
+- **Before starting work**: Mark task as "in_progress" in TODO.md
+- **After completing work**: Mark task as "completed" in TODO.md
+- **When discovering new tasks**: Add to TODO.md with appropriate priority
+- **Break large tasks** into smaller, manageable pieces in TODO.md
+- **TODO.md is the single source of truth** for all active work
+
+#### Task Assignment Protocol
+When assigning any task, you MUST:
+1. **Update TODO.md** with the task and mark as "in_progress"
+2. **Specify task status** explicitly (e.g., "mark as in_progress," "mark as completed")
+3. **Include time estimates** for new tasks discovered during work
+4. **Update priority levels** based on current development phase
+
+### 2. Code Implementation
 - **Follow existing patterns** in the codebase
-- **Test changes immediately** after implementation
-- **Never create new files** unless absolutely necessary
-- **Update documentation** when making significant changes
+- **Read files before editing** to understand context
+- **Test changes thoroughly** before moving to next task
+- **Maintain 60fps performance** throughout development
 
-### Testing Protocol
-```bash
-# Always test RAG backend after changes
-cd rag_backend
-source venv/bin/activate
-python test_rag.py
+### 3. Documentation Updates (MANDATORY After Changes)
+**CRITICAL**: After any significant code change, design decision, or problem resolution, you MUST update relevant documentation:
 
-# Always test Flutter app after changes
-flutter test
-flutter run -d chrome # for web testing
+#### Required Documentation Updates
+- **After UI changes**: Update PROJECT_STATUS.md with new features
+- **After architecture changes**: Update ARCHITECTURE.md with system design changes
+- **After game mechanic changes**: Update GAME_DESIGN.md with new mechanics
+- **After completing milestones**: Update PROJECT_STATUS.md with progress
+- **After solving problems**: Document solution rationale in relevant docs
+
+#### Example Protocol
+```
+"Now that we've updated the TradingScreen, please update docs/PROJECT_STATUS.md 
+to reflect the new UI features and docs/GAME_DESIGN.md with the design rationale."
 ```
 
-### Error Handling
-- **Document all errors** in TROUBLESHOOTING.md
-- **Include full error messages** and solutions
-- **Test fixes thoroughly** before marking complete
-- **Update prevention measures** for future sessions
+### 4. Documentation Maintenance Standards
+- **Immediate Updates**: Documentation must be updated immediately after changes
+- **Cross-Reference Updates**: Update all related documentation files
+- **Design Rationale**: Document the "why" behind decisions, not just the "what"
+- **Status Tracking**: Keep PROJECT_STATUS.md current with latest progress
 
-## 📊 Progress Tracking
+## 📊 Quality Assurance
 
-### Real-time Updates
-- **Update TODO.md** as tasks progress
-- **Update PROJECT_STATUS.md** when major milestones complete
-- **Update MEMORIES.md** with important decisions
-- **Commit changes frequently** with descriptive messages
+### Code Quality Standards
+- **Follow Flutter best practices** for state management
+- **Use Riverpod providers** for game state management
+- **Implement proper error handling** for all game actions
+- **Maintain type safety** throughout Dart code
 
-### Status Communication
-- **Be specific** about what you're working on
-- **Provide time estimates** for complex tasks
-- **Report blockers immediately** when encountered
-- **Celebrate completions** when tasks finish
+### Game Balance Testing
+- **Validate progression formulas** mathematically
+- **Test idle earnings calculations** with various time intervals
+- **Verify upgrade costs** and benefit scaling
+- **Balance bot performance** across different markets
 
-## 🔄 Session Management
+### Performance Requirements
+- **60fps target** for all animations and interactions
+- **<3 second app startup** time
+- **Efficient memory usage** for idle game calculations
+- **Battery optimization** for background processing
 
-### During the Session
-1. **Focus on one task** at a time
-2. **Use the TodoWrite tool** to track progress
-3. **Test frequently** to catch issues early
-4. **Ask for clarification** when requirements are unclear
-5. **Update documentation** as you work
+## 🔧 Technical Protocols
 
-### Communication Style
-- **Be concise** but thorough
-- **Provide context** for technical decisions
-- **Explain complex changes** in simple terms
-- **Use status indicators** (✅ ❌ 🔄 📋) for clarity
+### Infrastructure Usage
+- **RAG Backend**: Use for development context and documentation search
+- **Flutter Hot Reload**: Utilize for rapid iteration during development
+- **Smart Contracts**: Test blockchain integration carefully with small amounts
+- **Extended Exchange API**: Use mock data for development, real API for final testing
 
-## 🎯 Task Prioritization
+### Development Environment
+- **Local SQLite**: For game state persistence during development
+- **Mock Trading**: For rapid game mechanic testing
+- **Real Trading**: Only for final integration testing
+- **Blockchain**: Test on appropriate networks before mainnet
 
-### Priority Levels
-- **🔥 Critical**: Blocking other work, must be done now
-- **🔶 High**: Important for current sprint, do this week
-- **🔷 Medium**: Valuable improvement, do when time permits
-- **📋 Low**: Nice to have, backlog item
+## 🎯 Session Management
 
-### Task Selection
-1. **Check TODO.md** for current priorities
-2. **Address blockers first** (🔥 Critical)
-3. **Focus on sprint goals** (🔶 High priority)
-4. **Complete current tasks** before starting new ones
+### During Development Sessions
+1. **Start with TodoRead** to understand current tasks
+2. **MANDATORY**: Use TodoWrite to mark tasks as "in_progress" before starting work
+3. **Use TodoWrite** to track progress throughout session
+4. **Test frequently** during implementation
+5. **MANDATORY**: Update documentation immediately after changes
+6. **Commit changes** with descriptive messages
 
-## 🧪 Testing Strategy
+### Session Wrap-up Protocol
+1. **MANDATORY**: Mark completed tasks as "completed" in TodoWrite
+2. **MANDATORY**: Update PROJECT_STATUS.md with current progress
+3. **Add new tasks** discovered during development to TODO.md
+4. **Document any blockers** or issues encountered
+5. **Update next session priorities** in TODO.md
+6. **Verify all documentation** is current and accurate
 
-### Before Making Changes
-- **Understand the current state** by reading code
-- **Check existing tests** to understand expected behavior
-- **Identify what might break** with your changes
+### Task Assignment Examples
+When assigning tasks, use this format:
 
-### After Making Changes
-- **Run relevant tests** immediately
-- **Test the happy path** first
-- **Test edge cases** and error conditions
-- **Verify integrations** still work
-
-### Test Commands
-```bash
-# RAG Backend Tests
-cd rag_backend && source venv/bin/activate
-python test_rag.py                    # Full system test
-curl -s http://localhost:8000/        # Health check
-curl -X POST http://localhost:8000/search -d '{"query":"test"}' # Search test
-
-# Flutter Tests
-flutter test                          # Unit tests
-flutter analyze                       # Code analysis
-flutter run -d chrome                 # Web testing
+```
+"Please implement the casino floor tap button. 
+Before starting: mark task as 'in_progress' in TODO.md.
+After completion: mark as 'completed' in TODO.md and update 
+docs/PROJECT_STATUS.md with the new UI feature."
 ```
 
-## 📝 Documentation Standards
+### Documentation Update Examples
+After significant changes:
 
-### When to Update Documentation
-- **Architecture changes**: Update ARCHITECTURE.md
-- **New features**: Update PROJECT_STATUS.md
-- **Environment changes**: Update MACHINE_INFO.md
-- **New tasks**: Update TODO.md
-- **Important decisions**: Update MEMORIES.md
-- **Issues found**: Update TROUBLESHOOTING.md
-
-### Documentation Style
-- **Use clear headings** with emoji indicators
-- **Include code examples** where relevant
-- **Provide step-by-step instructions**
-- **Keep information current** and accurate
-- **Use consistent formatting** across files
-
-## 🔧 Problem-Solving Approach
-
-### When Things Go Wrong
-1. **Stay calm** and systematic
-2. **Read error messages** carefully
-3. **Check TROUBLESHOOTING.md** for known issues
-4. **Isolate the problem** to specific components
-5. **Test fixes incrementally**
-6. **Document the solution** for future reference
-
-### Debugging Strategy
-```bash
-# Check system status
-cd rag_backend && source venv/bin/activate
-python test_rag.py
-
-# Check logs
-tail -f logs/error.log  # if logging is set up
-
-# Test individual components
-python -c "import chromadb; print('ChromaDB OK')"
-python -c "from sentence_transformers import SentenceTransformer; print('Transformers OK')"
+```
+"Now that we've implemented the bot system, please update:
+- docs/PROJECT_STATUS.md to reflect Phase 2 progress
+- docs/ARCHITECTURE.md with the new bot provider architecture
+- docs/GAME_DESIGN.md with the idle earnings mechanics"
 ```
 
-## 🎭 Session Roles
+## 🚨 Common Pitfalls to Avoid
 
-### As the Developer
-- **Read documentation** before starting work
-- **Follow the step-by-step approach**
-- **Test thoroughly** and document issues
-- **Update documentation** as work progresses
-- **Communicate clearly** about progress and blockers
+### Development Mistakes
+- **Don't skip testing** game mechanics during implementation
+- **Don't modify smart contracts** without thorough testing
+- **Don't ignore performance implications** of idle calculations
+- **Don't break existing functionality** when adding new features
 
-### As the Project Manager
-- **Prioritize tasks** based on business value
-- **Track progress** using the TodoWrite tool
-- **Identify dependencies** and blockers
-- **Make decisions** about scope and priorities
-- **Ensure quality** through testing and review
+### Documentation Mistakes
+- **Don't leave TODO tasks** unmarked after completion (MANDATORY to update)
+- **Don't forget to update** PROJECT_STATUS.md after major changes (MANDATORY)
+- **Don't create new documentation** without cross-referencing
+- **Don't leave broken links** between documentation files
+- **Don't skip documentation updates** after code changes (MANDATORY)
+- **Don't forget to document design rationale** for decisions
 
-## 🚀 Success Metrics
+## 📈 Progress Tracking
 
-### Technical Excellence
-- **Code quality**: Clean, readable, maintainable
-- **Test coverage**: Comprehensive testing strategy
-- **Performance**: Meets or exceeds requirements
-- **Documentation**: Current and comprehensive
+### Key Performance Indicators
+- **Tasks completed** per session
+- **Phase progress** toward completion
+- **Code quality** metrics (test coverage, performance)
+- **Game balance** validation results
 
-### Project Management
-- **Task completion**: Consistent progress on priorities
-- **Communication**: Clear status updates
-- **Quality**: Thorough testing and review
-- **Documentation**: Up-to-date project state
+### Milestone Reporting
+- **Phase completion** updates in PROJECT_STATUS.md
+- **Infrastructure changes** documented in ARCHITECTURE.md
+- **Game mechanics** validated and documented
+- **Performance benchmarks** met and recorded
 
-## 🎯 Best Practices
+## 🔗 Cross-References
 
-### Do's
-- ✅ **Read documentation** before starting work
-- ✅ **Use TodoWrite tool** for tracking
-- ✅ **Test immediately** after changes
-- ✅ **Update documentation** as you go
-- ✅ **Commit frequently** with good messages
-- ✅ **Ask questions** when unclear
+### Essential Documentation
+- **[README.md](README.md)** - Project overview and quick start
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and components
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current development status
+- **[TODO.md](TODO.md)** - Active development tasks
+- **[GAME_DESIGN.md](GAME_DESIGN.md)** - Casino game mechanics
 
-### Don'ts
-- ❌ **Don't skip reading** documentation
-- ❌ **Don't batch todo updates**
-- ❌ **Don't skip testing** after changes
-- ❌ **Don't leave documentation** outdated
-- ❌ **Don't create unnecessary files**
-- ❌ **Don't work on multiple tasks** simultaneously
+### Detailed Implementation Guides
+- **[project-rules/docs/](../project-rules/docs/)** - Complete development documentation
+- **[knowledge_base/](../knowledge_base/)** - Technical reference materials
+- **[contracts/](../contracts/)** - Smart contract implementation
+- **[lib/](../lib/)** - Flutter game implementation
 
 ---
 
-**Last Updated**: 2025-01-08  
-**Next Review**: When collaboration patterns change  
-**Version**: 1.0.0
+**Protocol Version**: 1.0  
+**Last Updated**: 2025-01-10  
+**Next Review**: After Phase 1 completion  
+**Status**: Active development protocol for casino idle game

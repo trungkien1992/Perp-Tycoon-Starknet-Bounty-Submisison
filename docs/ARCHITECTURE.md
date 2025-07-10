@@ -1,264 +1,185 @@
-# StreetCred Minimal - System Architecture
+# Perp Tycoon - Casino Idle Game Architecture
 
-## 🏗️ High-Level Architecture
+## 🏗️ High-Level System Architecture
 
-StreetCred Minimal is a **gamified mobile trading app** for Gen-Z users targeting the StarkWare Bounty Program. The architecture focuses on trading, gamification, and blockchain innovation.
+Perp Tycoon is an **idle casino trading game** that transforms leveraged trading into an addictive mobile gaming experience with real blockchain integration.
 
-### 🎮 Product Architecture (User-Facing)
+### 🎮 Game Architecture Overview
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                  StreetCred Mobile Trading App                   │
+│                    Perp Tycoon - Casino Game                    │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
 │  │                 │    │                 │    │             │  │
-│  │  Flutter App    │◄──►│ Smart Contracts │◄──►│  Extended   │  │
-│  │ (Swipe Trading) │    │ (XP + Paymaster)│    │  Exchange   │  │
+│  │   Casino Floor  │◄──►│   Trading Bots  │◄──►│ Real Trades │  │
+│  │ (Tap-to-Trade)  │    │ (Idle Earnings) │    │ (1/day Max) │  │
+│  │                 │    │                 │    │             │  │
+│  └─────────────────┘    └─────────────────┘    └─────────────┘  │
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
+│  │                 │    │                 │    │             │  │
+│  │  Upgrade Shop   │◄──►│ Prestige System │◄──►│ Blockchain  │  │
+│  │ (Multipliers)   │    │ (Stark Tokens)  │    │ (XP + NFTs) │  │
+│  │                 │    │                 │    │             │  │
+│  └─────────────────┘    └─────────────────┘    └─────────────┘  │
+│                                                                 │
+│  Core Loop: Tap → Earn → Upgrade → Automate → Prestige         │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 🛠️ Technical Stack
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 Technical Infrastructure                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
+│  │                 │    │                 │    │             │  │
+│  │   Flutter App   │◄──►│ Smart Contracts │◄──►│  Extended   │  │
+│  │ (Game Frontend) │    │ (XP + NFTs)     │    │  Exchange   │  │
 │  │                 │    │                 │    │ (Real API)  │  │
 │  └─────────────────┘    └─────────────────┘    └─────────────┘  │
 │                                                                 │
-│  Core Features: Swipe Trading • Gasless Transactions • NFTs    │
+│  Infrastructure: Flutter • Starknet • Extended Exchange API    │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 🛠️ Development Architecture (Claude Code Tool)
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Claude Development Tools                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
-│  │                 │    │                 │    │             │  │
-│  │   Claude Code   │◄──►│   RAG Backend   │◄──►│  SDK Docs   │  │
-│  │  (This Session) │    │ (Context Tool)  │    │ (5 Platforms)│  │
-│  │                 │    │                 │    │             │  │
-│  └─────────────────┘    └─────────────────┘    └─────────────┘  │
-│                                                                 │
-│  Purpose: Efficient context retrieval without burning tokens   │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+## 🎯 Core Game Systems
 
-## 🎯 Core Components
+### 1. Casino Floor System
+**Purpose**: Main game interaction loop with tap-to-trade mechanics
+- **Location**: `/lib/screens/casino_floor_screen.dart`
+- **Mechanics**: Tap-to-trade with slot machine animations
+- **Features**: Real-time volatility, PnL animations, XP progression
+- **Pattern**: Real-time reactive UI with immediate feedback
 
-### 0. Shared Module Architecture (`/shared/`) - NEW!
+### 2. Trading Bot System
+**Purpose**: Automated idle earnings while offline
+- **Location**: `/lib/providers/bot_provider.dart`
+- **Mechanics**: Market specialization, profit calculation
+- **Formula**: `earnings = Σ(botYields * timeElapsed)`
+- **Pattern**: Stream-based periodic execution
 
-**Primary responsibility**: Consolidated utilities and code deduplication across all services
+### 3. Upgrade Shop System
+**Purpose**: Player progression through purchased improvements
+- **Location**: `/lib/screens/upgrade_shop_screen.dart`
+- **Categories**: Win rate boosts, PnL multipliers, speed enhancements
+- **Pattern**: Purchase validation with immediate effect application
 
-**Key modules**:
-- **Types System**: Unified type definitions (Dart + Python)
-- **API Clients**: Standardized HTTP communication with error handling
-- **Authentication**: Starknet signature generation and validation
-- **Error Handling**: Unified error structure with trace IDs
-- **Logging**: Centralized structured logging with sanitization
-- **Utilities**: Cryptographic functions and input validation
-- **Constants**: API endpoints and configuration values
-
-**Impact**: 30% code reduction, single source of truth, consistent patterns
-
-### 1. Flutter Mobile Application (`/lib/`)
-
-**Primary responsibility**: User interface and mobile trading experience
-
-**Key modules**:
-- **Trading Interface**: Swipe-based trading with gamification
-- **Blockchain Integration**: Starknet wallet and transaction management
-- **Paymaster Integration**: Gasless transaction sponsorship
-- **Social Features**: Leaderboards, achievements, and friend systems
-
-**Architecture pattern**: Provider-based state management with Riverpod
-
-```dart
-// State flow
-UI Screen → Provider → Service → External API
-     ↖              ↙
-       State Update
-```
-
-### 2. Knowledge Base RAG System (`/knowledge_base/`) - **DEVELOPMENT TOOL ONLY**
-
-**Primary responsibility**: Claude Code context retrieval without burning tokens (NOT a product feature)
-
-**Key modules**:
-- **FastAPI Server**: Local development server for Claude context queries
-- **Multi-platform Indexer**: SDK documentation for Claude reference  
-- **Categorization System**: Organize context for efficient retrieval
-- **Optimization Manager**: Keep context database efficient
-- **Management Scripts**: Complete system management and automation
-
-**Architecture pattern**: Self-contained knowledge management system
-
-```python
-# Claude Code context flow
-Claude Question → Knowledge Base RAG → ChromaDB → SDK Context → Better Code
-```
-
-**⚠️ IMPORTANT**: This is NOT shipped to users - it's purely for Claude development efficiency
-
-### 3. Smart Contracts (`/contracts/`)
-
-**Primary responsibility**: Blockchain-based features and gasless transactions
-
-**Key contracts**:
-- **XP System** (`streetcred_xp/`): On-chain experience tracking
-- **AVNU Paymaster** (`streetcred_paymaster/avnu_paymaster.cairo`): AVNU-compatible gasless transaction sponsorship
-- **Achievement NFTs** (`street_art_nft/`): Blockchain-verified accomplishments
-
-**Architecture pattern**: Cairo smart contracts on Starknet with AVNU ecosystem compatibility
+### 4. Prestige System
+**Purpose**: Reset progression for permanent benefits
+- **Location**: `/lib/providers/prestige_provider.dart`
+- **Mechanics**: Stark Token rewards, progress reset, multiplier bonuses
+- **Pattern**: Blockchain integration with local state management
 
 ## 🔄 Data Flow Architecture
 
-### Trading Flow (with AVNU Gasless)
+### Core Game Loop (Tap-to-Trade)
 ```
-1. User swipes on mobile → 2. Flutter provider updates
-                                     ↓
-9. UI shows result ← 8. XP bonus (+10 for gasless) ← 7. Trade execution
-                                     ↓
-3. AVNU can_sponsor_transaction? → 4. validate_and_pay_for_transaction → 5. Extended Exchange API
-        ↓                                    ↓
-6. Daily limit check                 Atomic gas payment by paymaster
+1. User taps → 2. Volatility fetch → 3. Win/loss calculation
+     ↓                ↓                    ↓
+6. UI animations ← 5. XP/cash update ← 4. PnL determination
+     ↓
+7. Achievement checks → 8. Level progression → 9. Unlock validation
 ```
 
-### Knowledge Search Flow (Development Only)
+### Idle Earnings Loop (Bots)
 ```
-1. Claude searches → 2. Knowledge Base RAG → 3. ChromaDB query → 4. Semantic search
-                                                                      ↓
-8. Context provided ← 7. Categorization ← 6. Ranking ← 5. Vector similarity
-```
-
-## 🧩 Component Interactions
-
-### Claude Code ↔ Knowledge Base RAG (Development Only)
-- **Protocol**: HTTP REST API (local development)
-- **Endpoints**: `/search`, `/categories`, `/health` for context retrieval
-- **Purpose**: Efficient SDK documentation lookup for Claude without burning tokens
-- **Management**: `./manage_knowledge_base.sh` for complete system control
-- **Scope**: Development environment only, not deployed to production
-
-### Flutter App ↔ Smart Contracts
-- **Protocol**: Starknet RPC calls
-- **Integration**: Direct contract calls via starknet.dart
-- **Authentication**: Cryptographic signatures
-- **Gas management**: Paymaster-sponsored transactions
-
-### RAG Backend ↔ External APIs
-- **Extended Exchange**: API documentation scraping
-- **GitHub**: Repository content extraction
-- **Static sites**: Documentation parsing
-- **WebSocket**: Real-time updates (future)
-
-## 📊 Platform Integration
-
-### Extended Exchange API
-- **Type**: RESTful trading API
-- **Integration**: Direct HTTP calls with authentication
-- **Features**: Order placement, market data, account management
-- **Documentation**: Indexed in RAG system
-
-### X10 Python SDK
-- **Type**: Python client library
-- **Integration**: Code examples and usage patterns
-- **Features**: Simplified Extended Exchange interaction
-- **Documentation**: GitHub repository indexing
-
-### Cairo Smart Contracts
-- **Type**: Blockchain development framework
-- **Integration**: Contract deployment and interaction
-- **Features**: Starknet-based smart contract development
-- **Documentation**: Official Cairo book and examples
-
-### Starknet.dart
-- **Type**: Flutter/Dart blockchain SDK
-- **Integration**: Direct dependency in Flutter app
-- **Features**: Wallet management, transaction signing
-- **Documentation**: API reference and mobile patterns
-
-## 🔐 Security Architecture
-
-### Authentication Flow
-```
-1. User login → 2. Starknet keypair generation → 3. Signature creation
-                                                        ↓
-6. Access granted ← 5. Signature verification ← 4. API authentication
+1. App minimized → 2. Timestamp saved → 3. Background calculation
+     ↓                     ↓                     ↓
+8. Welcome back ← 7. UI update ← 6. Earnings ← 5. Bot simulation
+     ↓                              ↓
+4. Time delta → Bot performance → Market volatility
 ```
 
-### Transaction Security
-- **Private keys**: Generated and stored locally
-- **Signatures**: Cryptographic proof of authorization
-- **API authentication**: Signature-based verification
-- **Error isolation**: Failures don't compromise wallet security
+## 🧩 Component Architecture
 
-### Data Protection
-- **Sensitive data**: Encrypted at rest and in transit
-- **API keys**: Environment variable configuration
-- **User data**: Minimal collection with local storage
-- **Audit logs**: Comprehensive transaction tracking
-
-## 🚀 Performance Architecture
-
-### Scalability Considerations
-- **RAG Backend**: Async FastAPI with connection pooling
-- **Vector Database**: ChromaDB with efficient indexing
-- **Mobile App**: Lazy loading with pagination
-- **Caching**: Multi-layer caching strategy
-
-### Optimization Features
-- **Document deduplication**: Automatic duplicate removal
-- **Embedding cache**: Reuse of computed embeddings
-- **Query optimization**: Intelligent query routing
-- **Background indexing**: Non-blocking documentation updates
-
-## 🔧 Development Architecture
-
-### Environment Separation
-- **Development**: Mock APIs with safe testing
-- **Staging**: Real APIs with limited exposure
-- **Production**: Full integration with monitoring
-
-### Testing Strategy
-- **Unit tests**: Individual component testing
-- **Integration tests**: Cross-component verification
-- **E2E tests**: Full workflow validation
-- **Performance tests**: Load and stress testing
-
-## 🌐 Deployment Architecture
-
-### Local Development
-```bash
-# Knowledge Base RAG System
-cd knowledge_base && ./manage_knowledge_base.sh start
-
-# Flutter App  
-flutter run
-
-# Smart Contracts
-cd contracts && scarb build
+### Game State Management
+```dart
+lib/providers/
+├── game_state_provider.dart     # Core: XP, cash, level progression
+├── idle_earnings_provider.dart  # Offline bot earnings calculation  
+├── bot_provider.dart            # Trading bot management & automation
+├── upgrade_provider.dart        # Player progression & multipliers
+├── prestige_provider.dart       # Reset mechanics & Stark Tokens
+└── tap_trade_provider.dart      # Manual trade simulation engine
 ```
 
-### Production Deployment
-- **Knowledge Base RAG**: NOT deployed (development tool only)
-- **Flutter App**: Mobile app stores
-- **Smart Contracts**: Starknet mainnet deployment  
-- **Monitoring**: Health checks and metrics
+### Screen Architecture
+```dart
+lib/screens/
+├── casino_floor_screen.dart     # Main game interface
+├── upgrade_shop_screen.dart     # Upgrade purchases
+├── bot_management_screen.dart   # Bot hiring/management
+├── prestige_screen.dart         # Reset and rewards
+└── leaderboard_screen.dart      # Global rankings
+```
 
-## 🔮 Future Architecture Considerations
+### Services Architecture
+```dart
+lib/services/
+├── tap_trade_service.dart       # Trade simulation
+├── game_loop_service.dart       # Idle calculations
+├── volatility_service.dart      # Market data integration
+├── contract_service.dart        # Blockchain interactions
+└── real_starknet_service.dart   # Real trading integration
+```
 
-### Planned Enhancements
-- **Microservices**: Split RAG backend into focused services
-- **Real-time**: WebSocket integration for live updates
-- **Multi-chain**: Cross-chain bridge integration
-- **AI enhancement**: Advanced LLM integration
-- **Social features**: User-generated content and sharing
+## 🔐 Security & Performance
 
-### Scaling Strategies
-- **Horizontal scaling**: Load balancer with multiple instances
-- **Database sharding**: Distributed vector storage
-- **CDN integration**: Global content delivery
-- **Edge computing**: Regional processing nodes
+### Trade Simulation Integrity
+- **Deterministic Outcomes**: Random seed based on market volatility + timestamp
+- **Fair Probability**: Win rates clearly displayed and mathematically enforced
+- **Audit Trail**: Complete log of all simulated trades for analysis
+
+### Performance Optimization
+- **60fps Target**: Smooth animations throughout all interactions
+- **Memory Efficiency**: Efficient bot simulation without memory leaks
+- **Battery Optimization**: Minimal background processing when inactive
+
+## 🌐 Integration Points
+
+### Blockchain Integration
+- **Smart Contracts**: XP tracking, NFT minting, gasless transactions
+- **Starknet**: Deployed on mainnet with real token rewards
+- **AVNU Paymaster**: Gasless transaction sponsorship
+
+### Real Trading Integration
+- **Extended Exchange API**: Real cryptocurrency trading capability
+- **Daily Limits**: Strict 1 real trade per day maximum
+- **Safety**: Small position sizes and comprehensive error handling
+
+## 📊 Infrastructure Status
+
+### ✅ 100% Complete Infrastructure
+- **Flutter App Foundation** - Complete mobile app framework
+- **Starknet Integration** - Wallet connection, contract interaction  
+- **Extended Exchange API** - Real trading backend ready
+- **Smart Contracts** - XP tracking, NFT minting, gasless transactions
+- **RAG Knowledge Base** - Development tool for context retrieval
+- **Cross-Platform Utilities** - Shared types and utilities
+
+### 🎮 Ready for Game Development
+All technical infrastructure is operational and ready for Phase 1 implementation:
+- Game state management systems
+- Blockchain integration
+- Real trading API connections
+- Local persistence with SQLite
+- Animation frameworks for casino effects
+
+## 🔗 Cross-References
+
+For detailed implementation guidance, see:
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current development status
+- **[GAME_DESIGN.md](GAME_DESIGN.md)** - Casino game mechanics
+- **[TODO.md](TODO.md)** - Active development tasks
+- **[project-rules/docs/ARCHITECTURE.md](../project-rules/docs/ARCHITECTURE.md)** - Detailed technical architecture
 
 ---
 
-**Last Updated**: 2025-01-08  
-**Version**: 1.0.0  
-**Next Review**: 2025-01-15
+**Last Updated**: 2025-01-10  
+**Architecture Version**: Casino Idle Game v1.0  
+**Status**: Infrastructure Complete - Game Development Ready

@@ -1,223 +1,230 @@
-# TODO - Active Tasks & Priorities
+# Perp Tycoon - Development TODO
 
-## 🎯 Current Sprint (Week of 2025-01-08)
+## 🎮 Current Development Phase
 
-### 🔥 High Priority - Immediate Action Required
+**Phase**: 🧱 **Phase 1 - Core Game Loop**  
+**Status**: 📋 **Ready to Begin**  
+**Timeline**: Week 1 (60-80 hours)  
+**Priority**: Begin casino floor implementation  
 
-#### 1. **Extended Exchange Account Verification** (Status: Critical)
-- **Task**: Verify account status and API trading permissions with Extended Exchange
-- **Estimate**: 1-2 business days (support response time)
-- **Current Issue**: Error 1101 (Invalid StarkEx signature) - All signatures rejected
-- **Context**: 
-  - ✅ Technical implementation 100% validated
-  - ✅ Signature generation mathematically correct
-  - ✅ Message hash calculation verified
-  - ✅ Account balance accessible ($12.94)
-  - ✅ API connectivity confirmed
-- **Next Steps**:
-  - Contact Extended Exchange support
-  - Verify account verification status
-  - Confirm API key has trading permissions (not just read-only)
-  - Check StarkEx perpetual futures trading enabled
-- **Expected Outcome**: Account cleared for live trading
-- **Dependencies**: Extended Exchange support response
+## 🧱 PHASE 1 – Core Game Loop (Week 1)
 
-#### 2. **Document Indexing** (Status: Ready to Execute)
-- **Task**: Index all SDK documentation into vector database
-- **Estimate**: 2-3 hours
-- **Commands**:
-  ```bash
-  cd rag_backend
-  source venv/bin/activate
-  curl -X POST http://localhost:8000/index -H "Content-Type: application/json" -d '{"platforms": ["all"]}'
-  ```
-- **Expected Outcome**: 500+ documents indexed across 4 platforms
-- **Dependencies**: RAG backend running (✅ Complete)
+### 🎯 High Priority - Screen Conversion
+- [ ] **Convert trading_screen.dart → casino_floor_screen.dart**
+  - Replace order forms & charts with tap-to-trade buttons
+  - Add slot machine animation framework
+  - Implement PnL burst animations and coin rains
+  - Add "MOON/RUG" outcome displays
+  - Ensure XP bar + vault cash always visible
+  - **Estimate**: 6-8 hours
 
-#### 3. **Real Trading Position Execution** (Status: Ready - Pending Account Access)
-- **Task**: Execute real AVAX/USD long position with all available funds
-- **Estimate**: 5 minutes (once account verified)
-- **Context**: ✅ System technically ready, awaiting account verification
-- **Expected Outcome**: Live position visible on Extended Exchange website
-- **Dependencies**: Extended Exchange account verification complete
-- **Ready Actions**:
-  - Execute AVAX/USD long with $11.65 (90% of $12.94 balance)
-  - Verify position appears on Extended Exchange website
-  - Monitor position performance
-- **Technical Implementation**: ✅ Complete and validated
+### 🎯 High Priority - New Game Screens
+- [ ] **Create upgrade_shop_screen.dart**
+  - Trading tools, leverage upgrades, visual enhancements
+  - Buy/upgrade interface with clear value propositions
+  - **Estimate**: 4-6 hours
 
-### 🔶 Medium Priority - This Week
+- [ ] **Create bot_management_screen.dart**
+  - Bot roster with visual avatars
+  - Hire new bots interface
+  - Bot stats and performance display
+  - **Estimate**: 4-6 hours
 
-#### 4. **Extended Exchange API Testing** (Status: Pending)
-- **Task**: Test real trading functionality with live API
-- **Estimate**: 3-4 hours
-- **Requirements**:
-  - Extended Exchange API key
-  - Test with small amounts on testnet
-  - Verify order placement and execution
-- **Expected Outcome**: Confirmed real trading pipeline
-- **Risk**: Real money involved - test carefully
+- [ ] **Create prestige_screen.dart**
+  - Reset progress interface
+  - Stark Token rewards display
+  - Prestige perks and benefits
+  - **Estimate**: 3-4 hours
 
-#### 5. **Smart Contract Deployment** (Status: Pending)
-- **Task**: Deploy contracts to Starknet testnet
-- **Estimate**: 2-3 hours
-- **Steps**:
-  - Deploy XP system contract
-  - Deploy paymaster contract
-  - Test gasless transactions
-- **Expected Outcome**: Functional on-chain components
-- **Dependencies**: Contract testing complete
+### 🎯 High Priority - Game State Providers
+- [ ] **Create game_state_provider.dart**
+  - Track XP, vault cash, Stark Tokens
+  - Level progression system
+  - Achievement tracking
+  - **Estimate**: 4-6 hours
 
-#### 6. **Documentation Finalization** (Status: In Progress)
-- **Task**: Complete all documentation files
-- **Estimate**: 1-2 hours
-- **Steps**:
-  - Finish remaining documentation files
-  - Update README with latest status
-  - Create deployment guides
-- **Expected Outcome**: Comprehensive project documentation
-- **Dependencies**: None
+- [ ] **Create idle_earnings_provider.dart**
+  - Passive cash calculation from bots
+  - Offline earnings computation
+  - Time-based accumulation
+  - **Estimate**: 4-5 hours
 
-### 🔷 Low Priority - Next Week
+- [ ] **Create upgrade_provider.dart**
+  - Trading tool upgrades and multipliers
+  - Leverage improvements
+  - Visual enhancement unlocks
+  - **Estimate**: 3-4 hours
 
-#### 7. **Social Features Implementation** (Status: Planned)
-- **Task**: Implement leaderboards and friend systems
-- **Estimate**: 6-8 hours
-- **Components**:
-  - User ranking system
-  - Friend connections
-  - Achievement sharing
-- **Expected Outcome**: Enhanced social engagement
-- **Dependencies**: Core features stable
+- [ ] **Create bot_provider.dart**
+  - Individual bot management
+  - Per-market profit rates
+  - Bot specialization logic
+  - **Estimate**: 5-6 hours
 
-#### 8. **Advanced Analytics** (Status: Planned)
-- **Task**: Implement comprehensive trading analytics
-- **Estimate**: 4-6 hours
-- **Components**:
-  - Performance metrics dashboard
-  - Trading history analysis
-  - Risk assessment tools
-- **Expected Outcome**: Data-driven trading insights
-- **Dependencies**: Trading system fully operational
+### 🎯 High Priority - Game Models
+- [ ] **Create game data models**
+  - TradingBot model (market type, profit multiplier, trade interval)
+  - Upgrade model (types, costs, effects)
+  - GameState model (overall progress tracking)
+  - **Estimate**: 4-5 hours
 
-## 📊 Backlog - Future Enhancements
+- [ ] **Implement SQLite save/load system**
+  - Use existing sqflite dependency
+  - Game state persistence
+  - **Estimate**: 3-4 hours
 
-### Performance & Scaling
-- [ ] **Load Testing**: Stress test with 100+ concurrent users
-- [ ] **Database Optimization**: Implement connection pooling
-- [ ] **Caching Strategy**: Redis integration for performance
-- [ ] **CDN Integration**: Global content delivery network
+### 🎨 Medium Priority - Animations
+- [ ] **Implement Lottie/Rive animations**
+  - Slot machine reels for trades
+  - Fire effects for big wins
+  - Bot action animations
+  - **Estimate**: 6-8 hours
 
-### User Experience
-- [ ] **Advanced UI**: Animations and micro-interactions
-- [ ] **Dark Mode**: Theme switching support
-- [ ] **Accessibility**: WCAG compliance improvements
-- [ ] **Multi-language**: Internationalization support
+**Phase 1 Total**: 60-80 hours
 
-### Features
-- [ ] **Advanced Charting**: Technical analysis tools
-- [ ] **Portfolio Management**: Multi-asset tracking
-- [ ] **News Integration**: Real-time market news
-- [ ] **Community Features**: User-generated content
+## 🎯 PHASE 2 – Automation & Idle (Week 1-2)
 
-### Technical Debt
-- [ ] **Code Refactoring**: Optimize component structure
-- [ ] **Security Audit**: Third-party security assessment
-- [ ] **Performance Profiling**: Detailed performance analysis
-- [ ] **Documentation Review**: Keep docs current
+### 🔄 Tap-to-Trade Engine
+- [ ] **Create tap_trade_service.dart**
+  - Use ExtendedExchangeFormat real-time volatility
+  - Implement win/loss simulation formula
+  - PnL calculation based on volatility and multipliers
+  - **Estimate**: 6-8 hours
 
-## 🎯 Weekly Goals
+- [ ] **Integrate volatility data**
+  - Connect to existing market data feeds
+  - Real-time volatility calculation
+  - **Estimate**: 3-4 hours
 
-### Week 1 (Jan 8-14): Production Readiness
-- ✅ RAG backend operational
-- 🔥 Complete document indexing
-- 🔥 Optimize search performance
-- 🔥 Test mobile UI with real data
+### 🤖 Bot System Implementation
+- [ ] **Create trading_bot.dart + bot_provider.dart**
+  - Individual bot properties and behavior
+  - Market specialization logic
+  - Profit multiplier calculations
+  - **Estimate**: 6-8 hours
 
-### Week 2 (Jan 15-21): Feature Completion
-- 🔶 Deploy smart contracts
-- 🔶 Test real trading functionality
-- 🔷 Implement social features
-- 🔷 Add advanced analytics
+- [ ] **Implement Stream.periodic() bot trading**
+  - Automated trade execution while idle
+  - Background processing
+  - **Estimate**: 4-5 hours
 
-### Week 3 (Jan 22-28): Launch Preparation
-- 📊 Comprehensive testing
-- 📊 Performance optimization
-- 📊 Security audit
-- 📊 Launch materials
+### 📈 Upgrade System
+- [ ] **Define UpgradeType enum**
+  - WinRate, PnLBoost, Speed, Cosmetic categories
+  - **Estimate**: 1 hour
 
-## 🚨 Blockers & Dependencies
+- [ ] **Implement upgrade ownership in SQLite**
+  - Store purchase history
+  - Update multipliers in providers
+  - **Estimate**: 3-4 hours
 
-### Current Blockers
-- **None** - All systems operational
+### 🎮 Game Loop & Offline Calculation
+- [ ] **Create game_loop_service.dart**
+  - Offline earnings calculation: earnings = Σ(botYields * timeElapsed)
+  - Last login time persistence
+  - Welcome back earnings display
+  - **Estimate**: 5-6 hours
 
-### External Dependencies
-- **Extended Exchange API**: API key required for real trading
-- **Starknet Network**: Testnet availability for contract deployment
-- **App Store**: Review process for mobile app deployment
+**Phase 2 Total**: 28-36 hours
 
-### Internal Dependencies
-- **RAG Backend**: Must remain operational for Flutter app
-- **Document Indexing**: Required for meaningful search results
-- **Smart Contracts**: Needed for full blockchain features
+## ⛓ PHASE 3 – Real Trading Integration (Week 2-3)
 
-## 🎯 Definition of Done
+### 💰 Real Daily Trade
+- [ ] **Add "One Real Trade" button to casino floor**
+  - Daily limit enforcement
+  - Special UI treatment
+  - **Estimate**: 2-3 hours
 
-### For Search System
-- ✅ RAG backend running
-- 🔥 Documents indexed from all 4 platforms
-- 🔥 Search response time < 50ms
-- 🔥 Categorization accuracy > 90%
-- 🔥 Mobile app integration working
+- [ ] **Connect existing real trading infrastructure**
+  - Use real_starknet_service.dart
+  - Integrate python_trading_service/main.py
+  - **Estimate**: 4-6 hours
 
-### For Trading System
-- 🔶 Extended Exchange API integration complete
-- 🔶 Real order placement tested
-- 🔶 Gasless transactions working
-- 🔶 Error handling comprehensive
-- 🔶 Security audit passed
+### 🏆 Blockchain Features
+- [ ] **Implement XP Contract Sync**
+  - Milestone-based sync (10 wins, 1M cash, 7-day streak)
+  - contractService.addXPToContract() integration
+  - **Estimate**: 3-4 hours
 
-### For Smart Contracts
-- 🔶 Contracts deployed to testnet
-- 🔶 XP system functional
-- 🔶 Paymaster sponsoring transactions
-- 🔶 Achievement NFTs mintable
-- 🔶 Integration with mobile app complete
+- [ ] **NFT Minting Integration**
+  - Use existing street_art_nft/ contracts
+  - Mint on achievements and milestones
+  - **Estimate**: 4-6 hours
 
-## 📅 Timeline
+- [ ] **Prestige Reset with Stark Token Minting**
+  - Use Cairo mint_stark_token() in prestige_provider.dart
+  - Reset local game state while preserving Stark Tokens
+  - **Estimate**: 4-5 hours
 
-### Today (2025-01-08)
-- **Morning**: Complete document indexing
-- **Afternoon**: Optimize search performance
-- **Evening**: Test mobile UI with real data
+**Phase 3 Total**: 20-28 hours
 
-### Tomorrow (2025-01-09)
-- **Morning**: Deploy smart contracts
-- **Afternoon**: Test Extended Exchange API
-- **Evening**: Documentation updates
+## 🌐 PHASE 4 – Social & Viral (Week 3)
 
-### This Week
-- **Wed-Thu**: Feature completion and testing
-- **Fri**: Week wrap-up and planning
-- **Weekend**: Optional enhancement work
+### 🔄 Retention Features
+- [ ] **Daily Login Bonus System**
+  - Free bot upgrades for daily logins
+  - Streak tracking and rewards
+  - **Estimate**: 3-4 hours
 
-## 🔄 Daily Standup Questions
+- [ ] **Hourly Volatility Surges**
+  - 2× profits time windows
+  - Push notifications for surge events
+  - **Estimate**: 2-3 hours
 
-### What did I accomplish yesterday?
-- RAG backend made operational
-- LangChain import issue resolved
-- System testing successful
+### 👥 Social Features
+- [ ] **Enhanced Leaderboard**
+  - Use contractService.getLeaderboardFromContract()
+  - Multiple ranking categories
+  - **Estimate**: 3-4 hours
 
-### What will I work on today?
-- Document indexing for all platforms
-- Search performance optimization
-- Mobile UI testing with real data
+- [ ] **Share Functionality**
+  - Export clips after prestige or jackpot
+  - Social media integration
+  - **Estimate**: 4-5 hours
 
-### Are there any blockers?
-- None currently - all systems operational
+### 📋 Documentation & Launch
+- [ ] **Update all documentation**
+  - README.md, PROJECT_STATUS.md updates
+  - Create REAL_TRADING_STATUS.md
+  - **Estimate**: 2-3 hours
+
+- [ ] **Create demo video**
+  - Showcase game mechanics and progression
+  - **Estimate**: 3-4 hours
+
+**Phase 4 Total**: 22-30 hours
+
+## 📊 Development Summary
+
+### Timeline Overview
+- **Phase 1**: 60-80 hours (Core Game Loop)
+- **Phase 2**: 28-36 hours (Automation & Idle)
+- **Phase 3**: 20-28 hours (Real Trading Integration)
+- **Phase 4**: 22-30 hours (Social & Viral)
+
+**Total Development Time**: 130-174 hours (4-5 weeks)
+
+### Current Status
+- **Infrastructure**: ✅ 100% Complete
+- **Game Development**: 📋 Phase 1 Ready to Begin
+- **Blockers**: None - ready for immediate development
+
+### Next Actions
+1. **Start Phase 1** with casino floor screen conversion
+2. **Use TodoWrite tool** to track progress
+3. **Test game mechanics** thoroughly during development
+4. **Update documentation** as features are completed
+
+## 🔗 Cross-References
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and components
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Current development status
+- **[COLLABORATION_GUIDE.md](COLLABORATION_GUIDE.md)** - Development protocols
+- **[project-rules/docs/TODO.md](../project-rules/docs/TODO.md)** - Detailed task breakdown
 
 ---
 
-**Last Updated**: 2025-01-08  
-**Next Review**: Daily at start of each session  
-**Sprint End**: 2025-01-14
+**Last Updated**: 2025-01-10  
+**Development Phase**: Phase 1 - Core Game Loop  
+**Status**: Ready to Begin Implementation  
+**Next Priority**: Convert trading_screen.dart to casino_floor_screen.dart
