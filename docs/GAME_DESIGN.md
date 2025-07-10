@@ -2,37 +2,53 @@
 
 ## 🎮 Game Overview
 
-**Perp Tycoon** is a casino-themed idle mobile game that transforms leveraged trading into an addictive gaming experience. Players enter a neon-lit underground trading casino where every tap simulates a leveraged trade through slot machine mechanics.
+**Perp Tycoon** is an idle trading casino where you build a crypto empire by turning mock perpetual trades into a satisfying, automated money-making machine, with a daily chance to make a real trade on Starknet. The game fuses the addictive progression of an idle game with the high-stakes thrill of leveraged trading, putting the player in the seat of a casino mogul. The gameplay feels like a Bloomberg terminal collided with a Las Vegas slot machine.
+
+## 🎯 Logline
+
+Perp Tycoon is an idle trading casino where you build a crypto empire by turning mock perpetual trades into a satisfying, automated money-making machine, with a daily chance to make a real trade on Starknet. The game is inspired by the Gamblers Table idle game of Itch.io
 
 ## 🎯 Core Game Loop
 
 ### The Perp Tycoon Experience
-```
-Tap → Trade Simulation → Earn/Lose → Upgrade → Automate → Prestige
-  ↑                                                            ↓
-  ←←←←←←←←←←←←←←←←←← Reset & Earn Stark Tokens ←←←←←←←←←←←←←←←←←←←
-```
+The player's journey follows a classic, highly-retentive incremental loop:
+
+**TOSS (Manual Trade) 🪙 → EARN (Virtual Cash) 💰 → UPGRADE (Boosts & Bots) 🛠️ → AUTOMATE (Idle Income) 🤖 → PRESTIGE (Reset for Perks) 🏆**
 
 ### Primary Mechanics
-1. **Tap-to-Trade**: Each tap triggers a slot machine animation simulating a leveraged trade
-2. **Earn & Upgrade**: Successful trades earn cash to buy better trading tools and multipliers
-3. **Automate**: Hire trading bots that earn money while offline (idle game mechanics)
-4. **Prestige**: Reset all progress to earn Stark Tokens (permanent blockchain rewards)
-5. **Real Integration**: One actual trade per day with Extended Exchange API
+1. **Manual Trading**: The primary action is a single tap on a "TOSS" button. The player chooses to go LONG (Heads) or SHORT (Tails) on a selected asset
+2. **Coin Toss Simulation**: Each tap initiates a satisfyingly robust coin toss with dynamic physics and sharp metallic sound effects
+3. **Progression Through Value**: Start with Copper Coin, unlock Silver Coin, then Gold Coin - each with higher base profits and richer sound
+4. **Earn & Upgrade**: Successful trades earn cash to buy better trading tools and multipliers
+5. **Automate**: Hire trading bots that earn money while offline (idle game mechanics)
+6. **Prestige**: Reset all progress to earn privilege  NFTs.
+7. **Real Integration**: One actual trade per day via Extended Exchange API
 
-## 🎰 Casino Floor System
+## 🎰 The Idle Casino: Core Interaction
+
+### The Digital "Coin Toss Table"
+The game's action is centered on a high-end, digital "Coin Toss Table," which serves as the player's main interface.
+
+**Core Interaction**: Every tap initiates a  coin toss. The coin flips dynamically across the table with a tangible sense of weight before landing with a sharp, metallic clash sound. This sensory feedback is designed to make every action feel impactful and make the player feel rich.
+
+### Coin Progression System
+- **Copper Coin**: Starting coin with basic profits and simple sound
+- **Silver Coin**: Offers higher base profits and richer audio feedback
+- **Gold Coin**: High-roller tier with largest virtual profits and deeply resonant "cha-ching" sound
 
 ### Main Interface (`casino_floor_screen.dart`)
-- **Tap Button**: Large, prominent trading button in center
-- **Slot Machine Animation**: Visual reels with crypto symbols (BTC, ETH, AVAX, etc.)
+- TOSS Initiate by tap the coin in the table. Don't need to be huge button. Just a coin in the table. 
+- **Coin Toss Animation**: Dynamic coin flip physics with weight and metallic sounds
+- **Long/Short Selection**: Choose LONG (Heads) or SHORT (Tails) before each toss
 - **XP Bar**: Always visible progress bar showing level advancement
-- **Vault Cash**: Real-time cash display with satisfying increment animations
-- **PnL Burst Effects**: Green coin showers for wins, red glitch effects for losses
+- **Vault Cash**: Real-time cash displa
+- **PnL Burst Effects**: Cash showers for wins, glitch effects for losses
 
-### Visual Theme
+### Visual Theme & Audio
+- **High-End Casino**: Digital casino floor with premium aesthetics
 - **Cyberpunk Casino**: Dark backgrounds with neon lighting
 - **Color Scheme**: Electric green/red for PnL, cyan/magenta accents
-- **Sound Design**: Slot machine spins, cash register dings, explosion effects
+- **Sound Design**: Metallic coin sounds, cash register dings, explosion effects
 - **Haptic Feedback**: Tactile responses for taps, wins, and major events
 
 ## 🤖 Trading Bot System
@@ -56,20 +72,25 @@ Each bot specializes in different markets and has unique characteristics:
 
 ## 📈 Upgrade Shop System
 
+Players spend their earned virtual cash in the Upgrade Shop to boost earnings potential.
+
 ### Upgrade Categories
 
-#### Win Rate Boosts
-- **Insider Info**: +5% win rate (Cost: 1,000 coins)
-- **Technical Analysis**: +10% win rate (Cost: 5,000 coins)
-- **Market Manipulation**: +15% win rate (Cost: 20,000 coins)
+#### Market Access
+- **Unlock ETH**: Access to Ethereum trading (Cost: 2,000 coins)
+- **Unlock STRK**: Access to Starknet token trading (Cost: 3,500 coins)
+- **Unlock Meme Coins**: Access to various meme coin markets (Cost: 5,000 coins)
 
-#### PnL Multipliers
+#### Trade Power
+- **Trade Size Multiplier**: Simulate higher leverage, increasing potential PnL swing (Cost: 2,000 coins)
+- **Quantum Charts**: Permanently increases maximum potential profit on winning trades by +10% (Cost: 5,000 coins)
 - **Leverage 2x**: Double profit/loss (Cost: 2,000 coins)
 - **Leverage 5x**: 5x profit/loss (Cost: 10,000 coins)
 - **Leverage 10x**: 10x profit/loss (Cost: 50,000 coins)
 
-#### Speed Enhancements
-- **Faster Execution**: -0.5s trade time (Cost: 1,500 coins)
+#### Efficiency & Automation
+- **Flash Execution**: Increases trade speed of automated bots by +1 tap/sec (Cost: 1,500 coins)
+- **Market Intel Feed**: Slightly increases base probability of winning trades by +3% (Cost: 7,500 coins)
 - **Lightning Speed**: -1s trade time (Cost: 7,500 coins)
 - **Instant Trades**: -2s trade time (Cost: 30,000 coins)
 
@@ -78,17 +99,21 @@ Each bot specializes in different markets and has unique characteristics:
 - **VIP Area**: Exclusive trading section
 - **Diamond Buttons**: Premium tap button appearance
 
-## 🔄 Prestige System
+## 🔄 Prestige System: Wall Street Ascension
 
 ### "Retire Rich" Mechanics
-When players reach specific milestones, they can "retire" to earn permanent benefits:
+This is the "end game" loop that drives long-term retention.
 
 ### Prestige Triggers
-- **Cash Milestone**: Accumulate 1 million coins
+- **Cash Milestone**: Accumulate $1,000,000 in virtual cash
 - **XP Milestone**: Reach level 50
 - **Achievement Combo**: Complete 10 different achievements
 
-### Stark Token Rewards
+### Stark Token Rewards (On-Chain NFTs)
+Upon reaching a significant milestone, players can choose to "Retire Rich," which resets their virtual cash, upgrades, and bots. In return, they earn on-chain "Stark Tokens" (potentially NFTs) that provide powerful, permanent global boosts:
+
+- **BlackRock Blessing**: All bots trade 25% faster, forever
+- **Alpha Edge**: Gain a 10% bonus on every manual trade win, forever
 - **Prestige Tier 1**: 1 Stark Token → +10% all earnings permanently
 - **Prestige Tier 2**: 5 Stark Tokens → +25% all earnings permanently
 - **Prestige Tier 3**: 10 Stark Tokens → +50% all earnings permanently
@@ -100,6 +125,9 @@ When players reach specific milestones, they can "retire" to earn permanent bene
 
 ## 🎲 Trade Simulation Engine
 
+### Coin Toss Mechanics
+The outcome—whether the player's bet was correct—is determined by a provably fair, random result, creating a 50/50 chance similar to a real coin flip. The magnitude of the Profit or Loss is then calculated based on the real-time market volatility of the chosen asset.
+
 ### Volatility-Based Outcomes
 ```dart
 // Trade outcome calculation
@@ -108,12 +136,14 @@ double volatility = getMarketVolatility(selectedMarket);
 double pnl = (isWin ? 1 : -1) * volatility * leverageMultiplier;
 ```
 
-### Market Behavior
-- **ETH**: Medium volatility, steady performance
-- **BTC**: Low volatility, reliable but slow gains
-- **AVAX**: High volatility, boom or bust outcomes
-- **MEME**: Extreme volatility, massive wins/losses possible
-- **USDC**: Minimal volatility, safe but low returns
+### Market Behavior & Volatility
+- **High Volatility**: Results in larger potential wins and losses
+- **Low Volatility**: Results in smaller, more consistent outcomes
+
+### Visual & Audio Feedback
+- **Win (Profit)**: Screen showers with cash, PnL indicator flashes green, virtual dollars added to vault, satisfying "cha-ching" sound
+- **Loss (Miss)**: Even losing trades reward the player with XP, ensuring every tap feels productive
+- **Trader Avatar**: Launches at a mini slot machine with reels spinning market symbols (bulls, bears, rockets) before settling on PnL result
 
 ## 💰 Game Economy Balance
 
@@ -198,13 +228,22 @@ Each major achievement mints an NFT using the `street_art_nft` contract:
 - **Battery Efficient**: Optimized for idle gameplay
 - **Offline Capable**: Core game works without internet
 
-## 🔐 Real Trading Integration
+## 🔐 Starknet Integration: The Web3 Hook
 
-### Daily Real Trade Feature
-- **Limit**: Maximum 1 real trade per day
-- **Amount**: Small position sizes ($1-10)
-- **Markets**: Same as simulation (ETH, BTC, AVAX, etc.)
-- **Rewards**: Special NFTs for real trade milestones
+### V0 Implementation (For Bounty)
+The initial version focuses on a simple, powerful integration that showcases the potential of Starknet:
+
+| Component | V0 Implementation |
+|-----------|-------------------|
+| **One Real Trade** | Integrate Starknet Extended API to allow one gasless (via Paymaster) real trade per day. PnL from this trade offers massive virtual cash bonus |
+| **Wallet Setup** | Seamless integration with Argent/X or Braavos wallets, triggered automatically on first "real trade" attempt |
+| **NFT Reward** | Mint simple "My First Casino Chip" NFT on Starknet as reward for successfully executing first real trade |
+| **Onboarding** | Instant tap-to-play. Web3 elements introduced organically when player is ready for first real move |
+| **State Management** | All game state (cash, upgrades, bots) managed in local state for v0 to ensure fast, responsive gameplay |
+
+### Future Vision
+- **On-Chain Assets**: Prestige rewards and rare cosmetic items for bots/casinos will be NFTs
+- **Idle Vaults**: Top players on leaderboard could earn share of global "tax" on all idle income, paid out via Starknet-native yield farm
 
 ### Safety Measures
 - **Confirmation Gates**: Multiple confirmation steps

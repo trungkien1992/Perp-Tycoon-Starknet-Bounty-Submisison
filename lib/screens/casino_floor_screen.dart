@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
 import '../providers/auth_provider.dart';
 import '../providers/xp_provider.dart';
+import '../providers/game_state_provider.dart';
+import '../providers/idle_earnings_provider.dart';
 import '../app_mode.dart';
 
 class CasinoFloorScreen extends ConsumerStatefulWidget {
@@ -16,31 +18,32 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
     with TickerProviderStateMixin {
   
   // Animation controllers
-  late AnimationController _slotMachineController;
+  late AnimationController _coinTossController;
   late AnimationController _pulseController;
   late AnimationController _coinRainController;
   late AnimationController _xpBarController;
   
   // Animations
-  late Animation<double> _slotRotation;
+  late Animation<double> _coinFlip;
   late Animation<double> _pulseAnimation;
   late Animation<double> _coinRainAnimation;
   late Animation<double> _xpBarAnimation;
   
   // Game state
   bool _isTrading = false;
-  double _vaultCash = 1000.0; // Starting cash
-  String _lastTradeResult = '';
-  List<String> _slotSymbols = ['🪙', '💎', '⚡', '🚀', '💰', '🎰'];
-  String _currentSlotSymbol = '🎰';
+  TradeResult? _lastTradeResult;
+  String _selectedMarket = 'BTC-USD';
+  
+  // Available markets
+  final List<String> _markets = ['BTC-USD', 'ETH-USD', 'AVAX-USD', 'DOGE-USD', 'USDC-USD'];
   
   @override
   void initState() {
     super.initState();
     
     // Initialize animation controllers
-    _slotMachineController = AnimationController(
-      duration: Duration(milliseconds: 1500),
+    _coinTossController = AnimationController(
+      duration: Duration(milliseconds: 2000),
       vsync: this,
     );
     
@@ -60,8 +63,8 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
     );
     
     // Setup animations
-    _slotRotation = Tween<double>(begin: 0.0, end: 4.0).animate(
-      CurvedAnimation(parent: _slotMachineController, curve: Curves.easeOutBack),
+    _coinFlip = Tween<double>(begin: 0.0, end: 6.0).animate(
+      CurvedAnimation(parent: _coinTossController, curve: Curves.easeOutBack),
     );
     
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
@@ -82,15 +85,18 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
 
   @override
   void dispose() {
-    _slotMachineController.dispose();
+    _coinTossController.dispose();
     _pulseController.dispose();
     _coinRainController.dispose();
     _xpBarController.dispose();
     super.dispose();
   }
 
-  Future<void> _executeTapTrade() async {
+  Future<void> _executeCoinToss() async {
     if (_isTrading) return;
+    
+    final coinType = ref.read(coinTypeProvider);
+    final direction = ref.read(tradingDirectionProvider);
     
     setState(() {
       _isTrading = true;
@@ -99,51 +105,44 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
     // Haptic feedback
     HapticFeedback.mediumImpact();
     
-    // Start slot machine animation
-    _slotMachineController.reset();
-    _slotMachineController.forward();
+    // Start coin toss animation
+    _coinTossController.reset();
+    _coinTossController.forward();
     
-    // Randomly cycle through symbols during spin
-    for (int i = 0; i < 8; i++) {
-      await Future.delayed(Duration(milliseconds: 150));
+    // Execute the trade through game state provider
+    try {
+      final result = await ref.read(gameStateProvider.notifier).executeCoinToss(
+        direction: direction,
+        coinType: coinType,
+        market: _selectedMarket,
+      );
+      
       if (mounted) {
         setState(() {
-          _currentSlotSymbol = _slotSymbols[math.Random().nextInt(_slotSymbols.length)];
+          _lastTradeResult = result;
+          _isTrading = false;
+        });
+        
+        // Update XP
+        ref.read(xpProvider.notifier).gainXP(result.xpGained);
+        
+        // Trigger appropriate visual effects
+        if (result.isWin) {
+          _triggerWinEffects();
+        } else {
+          _triggerLossEffects();
+        }
+        
+        // Animate XP bar
+        _xpBarController.reset();
+        _xpBarController.forward();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isTrading = false;
         });
       }
-    }
-    
-    // Simulate trade outcome using volatility
-    await Future.delayed(Duration(milliseconds: 1500));
-    
-    if (mounted) {
-      final random = math.Random();
-      final isWin = random.nextDouble() < 0.6; // 60% win rate for basic version
-      final tradeAmount = 50 + random.nextInt(100); // $50-150 per trade
-      final pnl = isWin ? tradeAmount.toDouble() : -tradeAmount.toDouble();
-      final xpGained = 10 + random.nextInt(20); // 10-30 XP per trade
-      
-      // Update vault cash
-      setState(() {
-        _vaultCash += pnl;
-        _lastTradeResult = isWin ? 'MOON! +\$${tradeAmount}' : 'RUG! -\$${tradeAmount}';
-        _currentSlotSymbol = isWin ? '🚀' : '💥';
-        _isTrading = false;
-      });
-      
-      // Update XP
-      ref.read(xpProvider.notifier).gainXP(xpGained);
-      
-      // Trigger appropriate visual effects
-      if (isWin) {
-        _triggerWinEffects();
-      } else {
-        _triggerLossEffects();
-      }
-      
-      // Animate XP bar
-      _xpBarController.reset();
-      _xpBarController.forward();
     }
   }
   
@@ -161,11 +160,60 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
     HapticFeedback.lightImpact();
   }
 
+  /// Build direction selection button
+  Widget _buildDirectionButton(TradingDirection buttonDirection, TradingDirection selectedDirection) {
+    final isSelected = buttonDirection == selectedDirection;
+    return GestureDetector(
+      onTap: () {
+        ref.read(tradingDirectionProvider.notifier).state = buttonDirection;
+        HapticFeedback.selectionClick();
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? (buttonDirection == TradingDirection.long ? Color(0xFF00FF41) : Color(0xFFFF4444))
+              : Colors.transparent,
+          border: Border.all(
+            color: buttonDirection == TradingDirection.long ? Color(0xFF00FF41) : Color(0xFFFF4444),
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              buttonDirection.emoji,
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(width: 8),
+            Text(
+              buttonDirection.displayName,
+              style: TextStyle(
+                color: isSelected ? Colors.black : Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
-    final currentXP = ref.watch(xpProvider);
-    final xpLevel = (currentXP ~/ 100) + 1; // Level up every 100 XP
+    final gameState = ref.watch(gameStateProvider);
+    final coinType = ref.watch(coinTypeProvider);
+    final direction = ref.watch(tradingDirectionProvider);
+    final idleEarnings = ref.watch(idleEarningsProvider);
+    final offlineEarnings = ref.watch(offlineEarningsProvider);
+    
+    final xpState = ref.watch(xpProvider);
+    final currentXP = xpState.localXP;
+    final xpLevel = xpState.level;
     final xpProgress = (currentXP % 100) / 100; // Progress in current level
     
     return Scaffold(
@@ -274,7 +322,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                                   Icon(Icons.account_balance, color: Color(0xFFFFD700), size: 20),
                                   SizedBox(width: 8),
                                   Text(
-                                    '\$${_vaultCash.toStringAsFixed(0)}',
+                                    '\$${gameState.vaultCash.toStringAsFixed(0)}',
                                     style: TextStyle(
                                       color: Color(0xFFFFD700),
                                       fontSize: 20,
@@ -353,7 +401,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                 
                 SizedBox(height: 40),
                 
-                // Slot Machine Display
+                // Coin Toss Table
                 Container(
                   padding: EdgeInsets.all(30),
                   decoration: BoxDecoration(
@@ -374,7 +422,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                   child: Column(
                     children: [
                       Text(
-                        'TRADING CASINO',
+                        '🪙 COIN TOSS TABLE',
                         style: TextStyle(
                           color: Color(0xFFFFD700),
                           fontSize: 20,
@@ -383,28 +431,94 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                         ),
                       ),
                       
+                      SizedBox(height: 20),
+                      
+                      // Market & Coin Selection
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // Market selector
+                          Column(
+                            children: [
+                              Text('Market', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              DropdownButton<String>(
+                                value: _selectedMarket,
+                                dropdownColor: Colors.black,
+                                style: TextStyle(color: Color(0xFF00FFFF), fontSize: 14),
+                                items: _markets.map((market) => DropdownMenuItem(
+                                  value: market,
+                                  child: Text(market),
+                                )).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() => _selectedMarket = value);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          // Coin type selector
+                          Column(
+                            children: [
+                              Text('Coin', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                              DropdownButton<CoinType>(
+                                value: coinType,
+                                dropdownColor: Colors.black,
+                                style: TextStyle(color: Color(0xFFFFD700), fontSize: 14),
+                                items: CoinType.values.map((type) => DropdownMenuItem(
+                                  value: type,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(type.emoji),
+                                      SizedBox(width: 4),
+                                      Text(type.displayName),
+                                    ],
+                                  ),
+                                )).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    ref.read(coinTypeProvider.notifier).state = value;
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      
                       SizedBox(height: 30),
                       
-                      // Slot Machine Symbol
+                      // Coin with flip animation
                       AnimatedBuilder(
-                        animation: _slotRotation,
+                        animation: _coinFlip,
                         builder: (context, child) {
-                          return Transform.rotate(
-                            angle: _slotRotation.value * 2 * math.pi,
+                          return Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.identity()
+                              ..setEntry(3, 2, 0.001)
+                              ..rotateY(_coinFlip.value),
                             child: Container(
                               width: 120,
                               height: 120,
                               decoration: BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: Colors.black.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(15),
                                 border: Border.all(
-                                  color: Color(0xFF00FFFF),
-                                  width: 2,
+                                  color: Color(0xFFFFD700),
+                                  width: 3,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Color(0xFFFFD700).withOpacity(0.3),
+                                    blurRadius: 15,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
                               ),
                               child: Center(
                                 child: Text(
-                                  _currentSlotSymbol,
+                                  _lastTradeResult?.coinEmoji ?? coinType.emoji,
                                   style: TextStyle(fontSize: 60),
                                 ),
                               ),
@@ -415,25 +529,47 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                       
                       SizedBox(height: 20),
                       
+                      // Long/Short Selection
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildDirectionButton(TradingDirection.long, direction),
+                          _buildDirectionButton(TradingDirection.short, direction),
+                        ],
+                      ),
+                      
+                      SizedBox(height: 20),
+                      
                       // Last trade result
-                      if (_lastTradeResult.isNotEmpty)
+                      if (_lastTradeResult != null)
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: _lastTradeResult.contains('MOON') 
+                            color: _lastTradeResult!.isWin 
                                 ? Color(0xFF00FF41).withOpacity(0.2)
                                 : Color(0xFFFF4444).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Text(
-                            _lastTradeResult,
-                            style: TextStyle(
-                              color: _lastTradeResult.contains('MOON') 
-                                  ? Color(0xFF00FF41)
-                                  : Color(0xFFFF4444),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          child: Column(
+                            children: [
+                              Text(
+                                _lastTradeResult!.pnlText,
+                                style: TextStyle(
+                                  color: _lastTradeResult!.isWin 
+                                      ? Color(0xFF00FF41)
+                                      : Color(0xFFFF4444),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'XP +${_lastTradeResult!.xpGained} | ${_lastTradeResult!.direction.displayName}',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                     ],
@@ -450,7 +586,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                       return Transform.scale(
                         scale: _pulseAnimation.value,
                         child: GestureDetector(
-                          onTap: _executeTapTrade,
+                          onTap: _executeCoinToss,
                           child: Container(
                             width: 200,
                             height: 80,
@@ -472,7 +608,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                             ),
                             child: Center(
                               child: Text(
-                                'TAP TO TRADE',
+                                'TOSS COIN',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 18,
@@ -508,7 +644,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'TRADING...',
+                            'TOSSING...',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
@@ -554,7 +690,7 @@ class _CasinoFloorScreenState extends ConsumerState<CasinoFloorScreen>
                 
                 // Bottom instructions
                 Text(
-                  'Tap to execute a leveraged trade!\nEarn XP and cash with each trade\n${isMockMode() ? '(Demo Mode)' : '(Live Trading)'}',
+                  'Choose LONG (Heads) or SHORT (Tails) and toss the coin!\nEarn XP and cash based on market volatility\n${isMockMode() ? '(Demo Mode)' : '(Live Trading)'}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.7),
