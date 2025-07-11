@@ -234,6 +234,7 @@ Each major achievement mints an NFT using the `street_art_nft` contract:
 The initial version focuses on a simple, powerful integration that showcases the potential of Starknet:
 
 | Component | V0 Implementation |
+
 |-----------|-------------------|
 | **One Real Trade** | Integrate Starknet Extended API to allow one gasless (via Paymaster) real trade per day. PnL from this trade offers massive virtual cash bonus |
 | **Wallet Setup** | Seamless integration with Argent/X or Braavos wallets, triggered automatically on first "real trade" attempt |
@@ -276,6 +277,6 @@ For implementation details:
 ---
 
 **Game Design Version**: 1.0  
-**Last Updated**: 2025-01-10  
+**Last Updated**: 2025-01-10 (Post-Knowledge Base Cleanup)  
 **Status**: Complete game design ready for implementation  
 **Next Phase**: Begin Phase 1 development
