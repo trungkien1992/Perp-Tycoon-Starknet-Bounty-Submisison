@@ -65,3 +65,35 @@ config/credentials.json
 .local/
 tmp/
 temp/
+
+# Python virtual environments
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Python specific
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Knowledge base cache
+knowledge_base/system/cache/
+knowledge_base/system/chroma_db/
+knowledge_base/system/temp/
+knowledge_base/system/backups/
+knowledge_base/system/logs/
+knowledge_base/system/optimization_reports/
+
+# Flutter build artifacts
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
